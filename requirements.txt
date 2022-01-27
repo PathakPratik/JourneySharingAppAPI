@@ -16,3 +16,6 @@ requests==2.27.1
 urllib3==1.26.8
 Werkzeug==2.0.2
 wrapt==1.13.3
+SQLAlchemy==1.4.31
+flask_sqlalchemy==2.5.1
+pymysql==1.0.2

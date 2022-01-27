@@ -1,11 +1,12 @@
 version: '3'
 services:
   api:
-    build: .
+  #  build: .
+    image: imageName
     entrypoint: python app.py
     ports:
         - '5000:5000'
-  redis:
-    image: redis
-    ports:
-      - "6379:6379"
+#  redis:
+#    image: redis
+#    ports:
+#      - "6379:6379"

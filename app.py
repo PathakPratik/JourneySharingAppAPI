@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 import redis
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:'DB_PASSWORD'@localhost/DB_NAME'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Yahya1377!@localhost/Flask'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 redisClient = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
