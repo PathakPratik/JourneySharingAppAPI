@@ -1,10 +1,14 @@
+import os
+from time import sleep
 from flask import Flask,request,jsonify
 from constants import FLASK_HOSTNAME, FLASK_PORT, REDIS_HOST, REDIS_PORT
 from flask_sqlalchemy import SQLAlchemy
 import redis
 
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Yahya1377!@localhost/Flask'
+sleep(30)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Yahya1377!@db:3306/flask'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 redisClient = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
