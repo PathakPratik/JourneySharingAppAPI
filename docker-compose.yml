@@ -1,10 +1,13 @@
 version: '3'
 services:
   api:
-    build: .
+    image: journey_sharing_app:v1
+    # build: .
     entrypoint: python app.py
     ports:
         - '5000:5000'
+    volumes:
+      - .:/app
     depends_on:
       - "db"
   db:
@@ -27,8 +30,10 @@ services:
       - 8080:8080
 volumes:
   mysqlvol:
-#    external=true
+#     external:true
 #  redis:
 #    image: redis
 #    ports:
 #      - "6379:6379"
+
+

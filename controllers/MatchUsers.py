@@ -25,7 +25,7 @@ def matchUsers():
         return jsonify(err.messages), 400
 
     # Add new journey to the list with current timestamp as score
-    from app import redisClient
+    from app_2 import redisClient
     redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): time.time() })
 
     # Return Current Journey List

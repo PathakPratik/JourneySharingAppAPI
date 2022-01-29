@@ -19,3 +19,4 @@ wrapt==1.13.3
 SQLAlchemy==1.4.31
 flask_sqlalchemy==2.5.1
 pymysql==1.0.2
+bcrypt==3.1.4
