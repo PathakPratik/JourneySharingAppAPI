@@ -9,7 +9,7 @@ from time import sleep
 
 
 app = Flask(__name__)
-sleep(10)
+#sleep(8)
 app.config.from_file("config.json", load=json.load)
 
 db.init_app(app)
