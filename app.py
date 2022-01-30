@@ -1,9 +1,8 @@
-import bcrypt
 from constants import FLASK_HOSTNAME, FLASK_PORT, REDIS_HOST, REDIS_PORT
 from db import db
-from flask import Flask,request,jsonify
-from flask_sqlalchemy import SQLAlchemy
-import os
+from flask import Flask
+import json
+from os import environ
 import redis
 from sqlalchemy.exc import IntegrityError
 from time import sleep
@@ -11,13 +10,8 @@ from time import sleep
 
 app = Flask(__name__)
 sleep(10)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://{}:{}@{}/{}'.format(
-    os.getenv('DB_USER', 'root'),
-    os.getenv('DB_PASSWORD', 'Yahya1377!'),
-    os.getenv('DB_HOST', 'db:3306'),
-    os.getenv('DB_NAME', 'flask')
-) #'mysql+pymysql://root:Yahya1377!@db:3306/flask'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config.from_file("config.json", load=json.load)
+
 db.init_app(app)
 
 redisClient = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
