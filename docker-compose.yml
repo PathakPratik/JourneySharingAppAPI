@@ -1,11 +1,39 @@
 version: '3'
 services:
   api:
-    build: .
+    image: journey_sharing_app:v1
+    # build: .
     entrypoint: python app.py
     ports:
         - '5000:5000'
-  redis:
-    image: redis
+    volumes:
+      - .:/app
+    depends_on:
+      - "db"
+  db:
+    image: mysql:latest
+    command: --default-authentication-plugin=mysql_native_password
+    restart: always
+    environment:
+      - MYSQL_DATABASE=flask
+      - MYSQL_ROOT_PASSWORD=Yahya1377!
+      - MYSQL_HOST=db
     ports:
-      - "6379:6379"
+      - 3306:3306
+    volumes:
+      - mysqlvol:/var/lib/mysql
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+volumes:
+  mysqlvol:
+#     external:true
+#  redis:
+#    image: redis
+#    ports:
+#      - "6379:6379"
+
+
