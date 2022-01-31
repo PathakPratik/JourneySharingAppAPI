@@ -9,53 +9,58 @@ from scipy import inf
 
 app_match_users = Blueprint('app_match_users',__name__)
 
-# Payload Schema for MatchUsers API
-class MatchUsersSchema(Schema):
+# Payload Schema for New Journey API
+class NewJourneySchema(Schema):
     UserId = fields.Integer(required=True)
     TripStartLocation = fields.List(fields.String(), required=True)
     TripStopLocation = fields.List(fields.String(), required=True)
 
-# MatchUsers API
-@app_match_users.route("/match-users", methods=['POST'])
-def matchUsers():
+# New Journey API
+@app_match_users.route("/new-journey", methods=['POST'])
+def NewJourney():
     
     # Unmarshal Payload
     request_data = request.json
-    schema = MatchUsersSchema()
+    schema = NewJourneySchema()
     try:
         result = schema.load(request_data)
     except ValidationError as err:
         return jsonify(err.messages), 400
 
     # Add new journey to the list with current timestamp as score
-    from app import redisClient
-    redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): time.time() })
+    try:
+        from app import redisClient
+        redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): time.time() })
+    except redisClient.RedisError as err:
+        return jsonify(err), 500
 
-    # Return Current Journey List
-    curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
-    curr_list_str = ''.join(map(str, curr_list))
-    return (curr_list_str,200)
+    # Return current journey list
+    # curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
+    # return (jsonify(curr_list,200)
+
+    # Return Success
+    return ("Success",200)
 
 # Empty current Journey List
 @app_match_users.route("/delete-journeys", methods=['DELETE'])
-def deleteJourneys():
+def DeleteJourneys():
 
-    from app import redisClient
-    redisClient.delete(REDIS_JOURNEY_LIST)
+    try:
+        from app import redisClient
+        redisClient.delete(REDIS_JOURNEY_LIST)
+    except redisClient.RedisError as err:
+        return jsonify(err), 500
 
-    curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
-    curr_list_str = ''.join(map(str, curr_list))
-    return (curr_list_str, 200)
+    return ("Success", 200)
 
-# Run Algorithm
-@app_match_users.route("/run-match-algo", methods=['GET'])
-def RunAlgo():
+# Match Users API
+@app_match_users.route("/match-users", methods=['GET'])
+def MatchUsers():
 
     from app import redisClient
     curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
     
-    start_arr = []
-    dest_arr = []
+    start_arr, dest_arr = [], []
     
     for each in curr_list:
         journey = json.loads(each)
@@ -67,10 +72,9 @@ def RunAlgo():
 
     res = []
     for i in neighbors:
-        res.append(curr_list[i])
+        res.append(json.loads(curr_list[i]))
 
-    res_str = ''.join(map(str, res))
-    return (res_str, 200)
+    return jsonify(res), 200
 
 def findNeighbours(start_arr, dest_arr, point = 0):
 
