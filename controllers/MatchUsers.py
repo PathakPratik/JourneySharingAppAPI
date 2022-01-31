@@ -53,9 +53,23 @@ def DeleteJourneys():
 
     return ("Success", 200)
 
+# Payload Schema for Match Users API
+class MatchUsersSchema(Schema):
+    UserId = fields.Integer(required=True)
+    TripStartLocation = fields.List(fields.String(), required=True)
+    TripStopLocation = fields.List(fields.String(), required=True)
+
 # Match Users API
-@app_match_users.route("/match-users", methods=['GET'])
+@app_match_users.route("/match-users", methods=['POST'])
 def MatchUsers():
+
+    # Unmarshal Payload
+    request_data = request.json
+    schema = MatchUsersSchema()
+    try:
+        result = schema.load(request_data)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
 
     from app import redisClient
     curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
@@ -67,8 +81,7 @@ def MatchUsers():
         start_arr.append(journey.get("TripStartLocation"))
         dest_arr.append(journey.get("TripStopLocation"))
     
-    from_point = 0 if not request.args.get('from') else int(request.args.get('from'))
-    neighbors = findNeighbours(start_arr, dest_arr, from_point)
+    neighbors = findNeighbours(start_arr, dest_arr, result)
 
     res = []
     for i in neighbors:
@@ -76,7 +89,7 @@ def MatchUsers():
 
     return jsonify(res), 200
 
-def findNeighbours(start_arr, dest_arr, point = 0):
+def findNeighbours(start_arr, dest_arr, point):
 
     # Create KD tree for start & destination points
     start_tree = cKDTree(start_arr)
@@ -86,8 +99,8 @@ def findNeighbours(start_arr, dest_arr, point = 0):
     max_distance = 0.01
     
     # Find nearest points
-    start_distances, start_indices = start_tree.query(start_arr[point], len(start_arr), p=1, distance_upper_bound=max_distance)
-    dest_distances, dest_indices = dest_tree.query(dest_arr[point], len(dest_arr), p=1, distance_upper_bound=max_distance)
+    start_distances, start_indices = start_tree.query(point.get("TripStartLocation"), len(start_arr), p=1, distance_upper_bound=max_distance)
+    dest_distances, dest_indices = dest_tree.query(point.get("TripStopLocation"), len(dest_arr), p=1, distance_upper_bound=max_distance)
     
     start_points = set()
     for i, dist in zip(start_indices, start_distances):
