@@ -14,10 +14,6 @@ services:
     image: mysql:latest
     command: --default-authentication-plugin=mysql_native_password
     restart: always
-    environment:
-      - MYSQL_DATABASE=flask
-      - MYSQL_ROOT_PASSWORD=Yahya1377!
-      - MYSQL_HOST=db
     ports:
       - 3306:3306
     volumes:
