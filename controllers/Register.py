@@ -14,13 +14,15 @@ def register():
     response = {}
 
     try:
-        #username_ = request.form['username']
-        #password_ = request.form['password']
-        #password_ = request.form['email']
+        username_ = request.form['username']
+        password_ = request.form['password']
+        gender_ = request.form['gender']
+        email_ = request.form['email']
+        confirmpassword_ = request.form['confirmpassword']
 
-        username_ = request.json.get('username', None)
-        password_ = request.json.get('password', None)
-        email_ = request.json.get('email', None)
+        #username_ = request.json.get('username', None)
+        #password_ = request.json.get('password', None)
+        #email_ = request.json.get('email', None)
 
         if not username_:
             response['message'] = 'Missing username'
@@ -39,7 +41,7 @@ def register():
     
         hashed_password = bcrypt.hashpw(password_.encode('utf-8'), bcrypt.gensalt())
 
-        registered_user = Users(username_, email_, hashed_password)
+        registered_user = Users(username_, email_,gender_, hashed_password)
         db.session.add(registered_user)
         db.session.commit()
         response["message"] = 'User registered successfully'

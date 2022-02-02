@@ -1,6 +1,7 @@
 from constants import FLASK_HOSTNAME, FLASK_PORT, REDIS_HOST, REDIS_PORT
-from db import db
+from db import db, migrate_db
 from flask import Flask
+from flask_migrate import init, migrate, upgrade
 import json
 from os import environ
 import redis
@@ -13,6 +14,7 @@ app = Flask(__name__)
 app.config.from_file("config.json", load=json.load)
 
 db.init_app(app)
+migrate_db.init_app(app, db)
 
 redisClient = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
 
@@ -32,5 +34,8 @@ app.register_blueprint(app_login)
 
 if __name__ == "__main__":
     with app.app_context():
+        #init_db = init()
         db.create_all()
+        migrate()
+        upgrade()
     app.run(debug=True, host=FLASK_HOSTNAME, port=FLASK_PORT)
