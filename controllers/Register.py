@@ -17,6 +17,13 @@ def validate_password(password):
     else:
         return ""
 
+def validate_email(email):
+    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$' 
+    if re.search(regex,email) is None:   
+        return "Invalid email address"
+    else:   
+        return ""
+
 app_register = Blueprint('app_register',__name__)
 
 @app_register.route("/register", methods=["POST"])
@@ -57,6 +64,11 @@ def register():
         
         if not email_:
             response['message'] = 'Missing email'
+            response['status'] = 400
+            return jsonify(response)
+
+        elif validate_email(email_) != "":
+            response['message'] = validate_email(email_)
             response['status'] = 400
             return jsonify(response)
     
