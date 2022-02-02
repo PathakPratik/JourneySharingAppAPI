@@ -11,13 +11,13 @@ def login():
     response = {}
 
     try:
-        #username_ = request.form['username']
-        #password_ = request.form['password']
+        email_ = request.form['email']
+        password_ = request.form['password']
 
-        username_ = request.json.get('username', None)
-        password_ = request.json.get('password', None)
+        #email_ = request.json.get('email', None)
+        #password_ = request.json.get('password', None)
 
-        if not username_:
+        if not email_:
             response["message"] = 'Missing username'
             response["status"] = 400
             return jsonify(response)
@@ -27,7 +27,7 @@ def login():
             response["status"] = 400
             return jsonify(response)
 
-        user = Users.query.filter_by(username=username_).first()
+        user = Users.query.filter_by(email=email_).first()
 
         if not user:
             response["message"] = 'Username not found'

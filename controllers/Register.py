@@ -1,10 +1,21 @@
+import re
 import bcrypt
 from db import db
 from flask import Flask,request,jsonify,Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from Models.Users import Users
+import re
 from sqlalchemy.exc import IntegrityError
 
+def validate_password(password):
+    if len(password) < 8:
+        return "Password must be at least 8 chracters"
+    elif re.search('[0-9]',password) is None:
+        return "Password must contain at least one digit"
+    elif re.search('[A-Z]',password) is None: 
+        return "Password must contain at least one capital letter"
+    else:
+        return ""
 
 app_register = Blueprint('app_register',__name__)
 
@@ -34,19 +45,28 @@ def register():
             response['status'] = 400
             return jsonify(response)
 
+        elif validate_password(password_) != "":
+            response['message'] = validate_password(password_)
+            response['status'] = 400
+            return jsonify(response)
+
+        elif password_ != confirmpassword_:
+            response['message'] = 'Password confirmation incorrect'
+            response['status'] = 400
+            return jsonify(response)
+        
         if not email_:
-            response['message'] = 'Missing email_'
+            response['message'] = 'Missing email'
             response['status'] = 400
             return jsonify(response)
     
         hashed_password = bcrypt.hashpw(password_.encode('utf-8'), bcrypt.gensalt())
 
-        registered_user = Users(username_, email_,gender_, hashed_password)
+        registered_user = Users(username_, email_, gender_, hashed_password)
         db.session.add(registered_user)
         db.session.commit()
         response["message"] = 'User registered successfully'
         response["status"] = 200
-        db.session.flush()
         return jsonify(response)
         
     except IntegrityError:
