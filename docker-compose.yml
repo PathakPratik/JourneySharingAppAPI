@@ -1,8 +1,8 @@
 version: '3'
 services:
   api:
-    image: journey_sharing_app:v1
-    # build: .
+    # image: journey_sharing_app:v1
+    build: .
     entrypoint: python app.py
     ports:
         - '5000:5000'
