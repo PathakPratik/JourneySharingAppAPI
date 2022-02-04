@@ -39,8 +39,6 @@ def register():
         confirmpassword_ = request.form['confirmpassword']
 
         #username_ = request.json.get('username', None)
-        #password_ = request.json.get('password', None)
-        #email_ = request.json.get('email', None)
 
         if not username_:
             response['message'] = 'Missing username'

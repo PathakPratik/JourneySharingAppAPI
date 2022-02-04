@@ -9,7 +9,9 @@ services:
     volumes:
       - .:/app
     depends_on:
-      - "db"
+      - db
+    environment:
+      - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
   db:
     image: mysql:latest
     command: --default-authentication-plugin=mysql_native_password

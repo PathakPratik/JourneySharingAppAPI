@@ -1,5 +1,5 @@
 from constants import FLASK_HOSTNAME, FLASK_PORT, REDIS_HOST, REDIS_PORT
-from db import db, migrate_db
+from db import db, migrate_db, session
 from flask import Flask
 from flask_migrate import init, migrate, upgrade
 import json
@@ -9,12 +9,12 @@ from sqlalchemy.exc import IntegrityError
 from time import sleep
 
 
-app = Flask(__name__)
-#sleep(8)
-app.config.from_file("config.json", load=json.load)
+app = Flask(__name__, instance_relative_config=False)
+app.config.from_object('config.Config')
 
 db.init_app(app)
 migrate_db.init_app(app, db)
+session.init_app(app)
 
 redisClient = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
 

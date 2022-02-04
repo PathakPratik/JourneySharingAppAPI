@@ -15,7 +15,6 @@ def login():
         password_ = request.form['password']
 
         #email_ = request.json.get('email', None)
-        #password_ = request.json.get('password', None)
 
         if not email_:
             response["message"] = 'Missing username'
