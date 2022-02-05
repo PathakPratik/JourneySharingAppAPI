@@ -74,6 +74,10 @@ def MatchUsers():
     from app import redisClient
     curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
     
+    # If not enough journeys created, return empty list
+    if len(curr_list) < 3:
+        return jsonify([]), 200
+
     start_arr, dest_arr = [], []
     
     for each in curr_list:
