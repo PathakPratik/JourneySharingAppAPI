@@ -10,7 +10,7 @@ from scipy import inf
 
 app_match_users = Blueprint('app_match_users',__name__)
 
-# Payload Schema for New Journey API
+# Payload Schema for Schedule Journey API
 class ScheduleJourneySchema(Schema):
     UserId = fields.Integer(required=True)
     TripStartLocation = fields.List(fields.String(), required=True)
