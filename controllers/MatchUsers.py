@@ -1,12 +1,7 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import Schema, fields, ValidationError
 from constants import REDIS_JOURNEY_LIST
-import json
-import numpy as np
-from services.MatchingAlgorithm import createJourney
-
-from scipy.spatial import cKDTree
-from scipy import inf
+from services.MatchingAlgorithm import createJourney, matchingAlgorithm
 
 app_match_users = Blueprint('app_match_users',__name__)
 
@@ -89,50 +84,7 @@ def MatchUsers():
     if len(curr_list) == 0:
         return jsonify([]), 200
 
-    start_arr, dest_arr = [], []
-    
-    for each in curr_list:
-        journey = json.loads(each)
-        start_arr.append(journey.get("TripStartLocation"))
-        dest_arr.append(journey.get("TripStopLocation"))
-    
-    # Get neighbour points
-    neighbors = findNeighbours(start_arr, dest_arr, result)
-
-    # Save result
-    res = []
-    for i in neighbors:
-        res.append(json.loads(curr_list[i]))
+    # Get matches result
+    res = matchingAlgorithm(curr_list, result)
 
     return jsonify(res), 200
-
-def findNeighbours(start_arr, dest_arr, point):
-
-    # Create KD tree for start & destination points
-    start_tree, dest_tree = cKDTree(start_arr), cKDTree(dest_arr)
-
-    # Max distance = 500 meters
-    max_distance = 0.01
-    
-    # Find nearest points
-    start_distances, start_indices = (start_tree.query(point.get("TripStartLocation"), len(start_arr), p=1, distance_upper_bound=max_distance))
-    dest_distances, dest_indices = (dest_tree.query(point.get("TripStopLocation"), len(dest_arr), p=1, distance_upper_bound=max_distance))
-    
-    start_distances, start_indices = handleSingleNeighbour(start_distances, start_indices)
-    dest_distances, dest_indices = handleSingleNeighbour(dest_distances, dest_indices)
-
-    start_points, dest_points = handleMultipleNeighbours(start_indices, start_distances), handleMultipleNeighbours(dest_indices, dest_distances)
-
-    # Matching journeys
-    return start_points & dest_points
-
-def handleSingleNeighbour(d, i):
-    return  np.array([d]) if type(d) is float else d, np.array([i]) if type(i) is int else i
-
-def handleMultipleNeighbours(indexes, distances):
-    points = set()
-    for i, dist in zip(indexes, distances):
-        if dist == inf:
-            break
-        points.add(i)
-    return points
