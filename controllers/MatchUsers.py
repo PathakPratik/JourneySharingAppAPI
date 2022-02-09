@@ -1,9 +1,9 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import Schema, fields, ValidationError
 from constants import REDIS_JOURNEY_LIST
-import time
 import json
-import numpy as np 
+import numpy as np
+from services.MatchingAlgorithm import createJourney
 
 from scipy.spatial import cKDTree
 from scipy import inf
@@ -44,10 +44,6 @@ def ScheduleJourney():
 
     # Return Success
     return "Success", 200
-
-# Add new journey to the list with current timestamp as score
-def createJourney(result, redisClient, score = time.time()):
-    redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): score })
 
 # Empty current Journey List
 @app_match_users.route("/delete-journeys", methods=['DELETE'])
