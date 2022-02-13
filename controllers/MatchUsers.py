@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from marshmallow import Schema, fields, ValidationError
+from marshmallow import Schema, fields, ValidationError, OneOf
 from constants import REDIS_JOURNEY_LIST
 from services.MatchingAlgorithm import createJourney, matchingAlgorithm
 
@@ -53,10 +53,16 @@ def DeleteJourneys():
     return ("Success", 200)
 
 # Payload Schema for Match Users API
+class Filters(Schema):
+    Gender = fields.String(validate=OneOf('Male','Female'))
+    ModeOfTransport = fields.String(validate=OneOf('Taxi','Walk'))
+    Rating = fields.Integer(validate=OneOf(1,2,3,4,5))
+
 class MatchUsersSchema(Schema):
     UserId = fields.Integer(required=True)
     TripStartLocation = fields.List(fields.String(), required=True)
     TripStopLocation = fields.List(fields.String(), required=True)
+    Filters = fields.Nested(Filters, required=False)
 
 # Match Users API
 @app_match_users.route("/match-users", methods=['POST'])

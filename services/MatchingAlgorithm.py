@@ -16,6 +16,10 @@ def matchingAlgorithm(curr_list, point):
     
     for each in curr_list:
         journey = json.loads(each)
+        
+        if filterJourney(journey, point):
+            continue
+        
         start_arr.append(journey.get("TripStartLocation"))
         dest_arr.append(journey.get("TripStopLocation"))
     
@@ -28,6 +32,10 @@ def matchingAlgorithm(curr_list, point):
         res.append(json.loads(curr_list[i]))
     
     return res
+
+# Filter journeys acc to user preferences
+def filterJourney(journey, point):
+    pass
 
 # Find neighbouring points from start and destinations
 def findNeighbours(start_arr, dest_arr, point):
