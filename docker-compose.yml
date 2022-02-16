@@ -14,7 +14,8 @@ services:
     environment:
       - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
   db:
-    image: mysql:latest
+    container_name: "mysql_container"
+    image: mysql_container:1.0.0
     command: --default-authentication-plugin=mysql_native_password
     restart: always
     ports:
