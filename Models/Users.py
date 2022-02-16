@@ -4,7 +4,7 @@ from db import db
 
 class Users(db.Model):
     
-    __tablename__ = 'users'
+    __tablename__ = 'confirmed_users'
 
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)

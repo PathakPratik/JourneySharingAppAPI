@@ -2,8 +2,6 @@ from constants import FLASK_HOSTNAME, FLASK_PORT, REDIS_HOST, REDIS_PORT
 from db import db, migrate_db, session
 from flask import Flask
 from flask_migrate import init, migrate, upgrade
-import json
-from os import environ
 import redis
 from sqlalchemy.exc import IntegrityError
 from time import sleep
