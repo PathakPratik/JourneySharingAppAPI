@@ -10,4 +10,6 @@ RUN cd /app && pipenv lock --keep-outdated --requirements > requirements.txt
 
 RUN pip3 install -r requirements.txt --no-cache-dir
 
-COPY . .
+COPY . . 
+
+CMD python app.py
