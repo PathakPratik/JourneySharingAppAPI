@@ -11,7 +11,7 @@ services:
       - .:/app
     depends_on:
       - db
-    restart: on-failure:10
+    restart: on-failure:15
     environment:
       - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
   db:
