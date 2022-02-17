@@ -6,7 +6,7 @@ services:
     # build: .
     entrypoint: python app.py
     ports:
-        - '5000:5000'
+        - '5010:5010'
     volumes:
       - .:/app
     depends_on:
@@ -16,6 +16,7 @@ services:
       - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
   db:
     container_name: "mysql_container"
+    platform: linux/amd64
     image: mysql_container:1.0.0
     command: --default-authentication-plugin=mysql_native_password
     restart: always
