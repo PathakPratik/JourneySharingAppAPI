@@ -26,20 +26,14 @@ services:
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
     #volumes:
     #  - mysqlvol:/var/lib/mysql
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
   redis:
     image: redis
     ports:
       - "6379:6379"
-  reoutehandler:
-    image: nginix_route_handler:1.0.0
-    ports:
-      - 80:80
+ # reoutehandler:
+  #  image: nginix_route_handler:1.0.0
+  #  ports:
+   #   - 80:80
 
 
 volumes:
