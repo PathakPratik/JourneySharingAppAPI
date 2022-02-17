@@ -1,7 +1,7 @@
 FROM mysql:latest
 
-ENV MYSQL_DATABASE=flask
-ENV MYSQL_ROOT_PASSWORD=secret_password
+ENV MYSQL_DATABASE=${MYSQL_DATABASE}
+ENV MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
 
 ADD flask_confirmed_users.sql /docker-entrypoint-initdb.d
 
