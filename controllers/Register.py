@@ -6,6 +6,17 @@ from flask_sqlalchemy import SQLAlchemy
 from Models.Users import Users
 import re
 from sqlalchemy.exc import IntegrityError
+from marshmallow import Schema
+
+#Create User Schema
+class UserSchema(Schema):
+    class Meta:
+        fields = ("id","username","email","gender")
+        # exclude = ("password")
+
+#Init User Schemas
+user_schema = UserSchema() #return 1 user
+users_schema = UserSchema(many=True) #return many users
 
 def validate_password(password):
     if len(password) < 8:
@@ -90,3 +101,11 @@ def register():
         response["message"] = 'Bad request - Provide an username and Password in JSON format in the request body'
         response["status"] = 400
         return jsonify(response)
+
+#testing use case to get all users in database
+@app_register.route("/show-all", methods=["GET"])
+def get_all_users():
+    all_users = Users.query.all()
+    results =users_schema.dump(all_users)
+    return jsonify(results)
+

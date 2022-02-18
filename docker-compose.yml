@@ -6,7 +6,7 @@ services:
     # build: .
     entrypoint: python app.py
     ports:
-        - '5010:5010'
+        - '5000:5000'
     volumes:
       - .:/app
     depends_on:
