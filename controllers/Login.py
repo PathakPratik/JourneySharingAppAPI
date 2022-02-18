@@ -1,7 +1,7 @@
 import bcrypt
-from flask import Flask,request,jsonify,Blueprint
+from flask import request, jsonify, Blueprint, session
 from Models.Users import Users
-
+import uuid
 
 app_login = Blueprint('app_login',__name__)
 
@@ -13,7 +13,6 @@ def login():
     try:
         email_ = request.form['email']
         password_ = request.form['password']
-
         #email_ = request.json.get('email', None)
 
         if not email_:
@@ -34,6 +33,7 @@ def login():
             return jsonify(response)
 
         if bcrypt.checkpw(password_.encode('utf-8'), user.password.encode('utf-8')):
+            session['id'] = uuid.uuid4()
             response["message"] = 'User logged in successfully'
             response["status"] = 200
             return jsonify(response)
