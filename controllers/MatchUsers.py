@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import Schema, fields, ValidationError
+from Models.Users import Users
 from constants import REDIS_JOURNEY_LIST
+from controllers.Register import UserSchema
 from services.MatchingAlgorithm import createJourney, matchingAlgorithm
 
 app_match_users = Blueprint('app_match_users',__name__)
@@ -87,7 +89,19 @@ def MatchUsers():
     # Get matches result
     res = matchingAlgorithm(curr_list, result)
 
-    return jsonify(res), 200
+    trueRes = []
+    for user in res:
+        # For each user that we matches the in terms of distance
+        # get their MatchUsersSchema
+        currUser = schema.load(user)
+        # Extract the user id from the schema
+        currId = currUser["UserId"]
+        # cross reference userid with the db and append the users 
+        # object to the trueRes list
+        trueRes.append(Users.query.filter_by(id=currId).first())
+
+    # Use the UsersSchema to dump and jsonify the user details
+    return jsonify(UserSchema(many=True).dump(trueRes)), 200
 
 @app_match_users.route("/create-n-matching-journeys",methods=['POST'])
 def CreateNMatchingJourneys():
