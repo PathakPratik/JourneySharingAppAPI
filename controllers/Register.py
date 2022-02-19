@@ -106,7 +106,7 @@ def register():
 #testing use case to get all users in database
 @app_register.route("/show-all", methods=["GET"])
 def get_all_users():
-    """Dev method to return all users currently int he Datab
+    """Dev method to return all users currently int the db
 
     Returns:
         json: Returns a json stream containing all the current users
@@ -140,6 +140,31 @@ def generate_random_user():
     #return the added user 
     randUser = user_schema.dump(new_user)
     return jsonify(randUser), 200
+
+@app_register.route("/generate-n-random-users", methods=["POST"])
+def generate_n_random_users():
+    numusers_ = int(request.form['numusers'])
+    generated_users = []
+    for i in range(numusers_):
+        # create random int
+        random_int = randint(1,9000000000)
+
+        #use random int to generate random fields for the user
+        username = "RandomUser" + str(random_int)
+        email =  "RandomUser"+str(random_int) + "@gmail.com"
+        password = "RandomPassword"+str(random_int)
+        gender = "Male" if random_int%2==0 else "Female"
+
+        #create random user and commit to db
+        new_user = Users(username,email,gender,password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        #append to generated users
+        generated_users.append(new_user)
+    
+    newusers = users_schema.dump(generated_users)
+    return jsonify(newusers), 200
 
 
 
