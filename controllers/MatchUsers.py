@@ -88,3 +88,45 @@ def MatchUsers():
     res = matchingAlgorithm(curr_list, result)
 
     return jsonify(res), 200
+
+@app_match_users.route("/create-n-matching-journeys",methods=['POST'])
+def CreateNMatchingJourneys():
+
+    #Get number of matching journeys to make
+    numJourneys = request.json['numjourneys']
+    addedJourneys = []
+
+    #Define mathcing journey conditions
+    UserID = 1
+    TripStartLocation = ["53.3451","-6.2657"]
+    TripStopLocation = ["53.3313","-6.27875"]
+    ScheduleTime = 43.54
+
+    for i in range(numJourneys):
+        #create the json for the journey
+        currJson = {
+            "UserId": UserID,
+            "TripStartLocation": TripStartLocation,
+            "TripStopLocation": TripStopLocation,
+            "ScheduleTime": ScheduleTime
+        }
+        currSchema = ScheduleJourneySchema()
+        try:
+            result = currSchema.load(currJson)
+            addedJourneys.append(result)
+        except ValidationError as err:
+            return jsonify(err.messages), 400
+
+        # Add new journey to the list with current timestamp as score
+        from app import redisClient
+        try:
+            score = result['ScheduleTime']
+            del result['ScheduleTime']
+            createJourney(result, redisClient, score)
+        except redisClient.RedisError as err:
+            return jsonify(err), 500
+
+        UserID += 1
+    
+    final = ScheduleJourneySchema(many=True).dump(addedJourneys)
+    return jsonify(final)
