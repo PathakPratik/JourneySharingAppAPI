@@ -1,4 +1,4 @@
-FROM --platform=linux/amd64 mysql:latest
+FROM mysql:latest
 
 ENV MYSQL_DATABASE=$MYSQL_DATABASE
 ENV MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
