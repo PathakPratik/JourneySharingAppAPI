@@ -37,8 +37,8 @@ services:
    #   - 80:80
 
 
-volumes:
-  mysqlvol:
+#volumes:
+#  mysqlvol:
 #     external:true
 
 
