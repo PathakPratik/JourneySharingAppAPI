@@ -143,6 +143,14 @@ def generate_random_user():
 
 @app_register.route("/generate-n-random-users", methods=["POST"])
 def generate_n_random_users():
+    """Dev method to generate a number of random users
+
+    Args: 
+        numusers: Reads the number of users to be generated
+         from request.form[]
+    Returns:
+        json: Return a json stream of the random users generated
+    """
     numusers_ = int(request.form['numusers'])
     generated_users = []
     for i in range(numusers_):
