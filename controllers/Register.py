@@ -118,6 +118,11 @@ def get_all_users():
 
 @app_register.route("/generate-random-user", methods=["POST"])
 def generate_random_user():
+    """Dev method to generate a single random user
+
+    Returns:
+        json: Details of the random user generated in json format.
+    """
     # create random int
     random_int = randint(1,9000000000)
 
@@ -128,7 +133,7 @@ def generate_random_user():
     gender = "Male" if random_int%2==0 else "Female"
 
     #create random user and commit to db
-    new_user = Users(username,email,password,gender)
+    new_user = Users(username,email,gender,password)
     db.session.add(new_user)
     db.session.commit()
 
