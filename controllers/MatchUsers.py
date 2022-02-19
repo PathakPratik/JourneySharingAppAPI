@@ -91,6 +91,16 @@ def MatchUsers():
 
 @app_match_users.route("/create-n-matching-journeys",methods=['POST'])
 def CreateNMatchingJourneys():
+    """Creates N matching journeys, requires that the
+        users ids are already created. 
+    
+    Args: 
+        numjounreys, int: reads number of journeys to be created
+            from request
+
+    Returns:
+        json: Returns a json stream of the created journeys
+    """
 
     #Get number of matching journeys to make
     numJourneys = request.json['numjourneys']
@@ -129,4 +139,4 @@ def CreateNMatchingJourneys():
         UserID += 1
     
     final = ScheduleJourneySchema(many=True).dump(addedJourneys)
-    return jsonify(final)
+    return jsonify(final), 200
