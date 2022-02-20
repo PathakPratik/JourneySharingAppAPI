@@ -7,8 +7,7 @@ class Config:
     """Set Flask configuration vars from .env file."""
 
     # General Config
-    SECRET_KEY = 'secret_key'
-    #SQLALCHEMY_DATABASE_URI = "mysql+pymysql://root:Yahya1377!@db:3306/flask"
+    SECRET_KEY = str(environ.get('SECRET_KEY'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_DATABASE_URI = str(environ.get('SQLALCHEMY_DATABASE_URI'))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
@@ -21,9 +20,9 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(seconds=30)
 
     #Flask-Mail
-    MAIL_SERVER = 'smtp.gmail.com'
-    MAIL_PORT = 465
-    MAIL_USERNAME = 'mahdislami1377@gmail.com'
-    MAIL_PASSWORD = 'Mahdak1377'
+    MAIL_SERVER = str(environ.get('MAIL_SERVER'))
+    MAIL_PORT = (environ.get('MAIL_PORT'))
+    MAIL_USERNAME = str(environ.get('MAIL_USERNAME'))
+    MAIL_PASSWORD = str(environ.get('MAIL_PASSWORD'))
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
