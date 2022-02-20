@@ -1,6 +1,6 @@
 from urllib import response
 from constants import FLASK_HOSTNAME, FLASK_PORT, REDIS_HOST, REDIS_PORT
-from setup import db, migrate_db, session_, login_manager
+from setup import db, migrate_db, session_, login_manager, mail
 from flask import Flask, jsonify, session
 from flask_migrate import init, migrate, upgrade
 import redis
@@ -13,6 +13,7 @@ db.init_app(app)
 migrate_db.init_app(app, db)
 session_.init_app(app)
 login_manager.init_app(app)
+mail.init_app(app)
 
 redisClient = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
             
@@ -31,11 +32,15 @@ app.register_blueprint(app_login)
 from controllers.Logout import app_logout
 app.register_blueprint(app_logout)
 
+from controllers.EmailConformation import app_confirm_email
+app.register_blueprint(app_confirm_email)
+
 
 if __name__ == "__main__":
     with app.app_context():
         #init_db = init() #Initialize the DB migriation path
         db.create_all()
-        #migrate() #DB migration
-        #upgrade() #DB Upgrade
+        migrate() #DB migration
+        upgrade() #DB Upgrade
+        
     app.run(debug=True, host=FLASK_HOSTNAME, port=FLASK_PORT)

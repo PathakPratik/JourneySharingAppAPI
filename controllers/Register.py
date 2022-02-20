@@ -1,8 +1,8 @@
 import re
 import bcrypt
 from setup import db
-from flask import Flask,request,jsonify,Blueprint
-from flask_sqlalchemy import SQLAlchemy
+from flask import request,jsonify,Blueprint
+from services.ConfirmEmail import send_confirmation_account_email
 from Models.Users import Users
 import re
 from sqlalchemy.exc import IntegrityError
@@ -54,6 +54,11 @@ def register():
             response['message'] = validate_password(password_)
             response['status'] = 400
             return jsonify(response)
+        
+        elif not confirmpassword_:
+            response['message'] = 'Missing password confirmation'
+            response['status'] = 400
+            return jsonify(response)
 
         elif password_ != confirmpassword_:
             response['message'] = 'Password confirmation incorrect'
@@ -69,10 +74,18 @@ def register():
             response['message'] = validate_email(email_)
             response['status'] = 400
             return jsonify(response)
+
+        if not gender_:
+            response['message'] = 'Missing gender'
+            response['status'] = 400
+            return jsonify(response)
+
     
         hashed_password = bcrypt.hashpw(password_.encode('utf-8'), bcrypt.gensalt())
 
-        registered_user = Users(username_, email_, gender_, hashed_password)
+        registered_user = Users(username_, email_, gender_, hashed_password, admin=False, confirmed=False, confirmed_on=None)
+        #send_confirmation_account_email(email_)
+
         db.session.add(registered_user)
         db.session.commit()
         response["message"] = 'User registered successfully'
