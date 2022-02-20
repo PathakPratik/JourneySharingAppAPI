@@ -1,13 +1,10 @@
-import re
 import bcrypt
 from setup import db
 from flask import request,jsonify,Blueprint
-from services.ConfirmEmail import send_confirmation_account_email
 from Models.Users import Users
-import re
-from sqlalchemy.exc import IntegrityError
 from marshmallow import Schema
 from random import randint
+from services.UserModule import valiadte_register_form, validate_email, validate_password , password_match_confrimation, add_user_to_db, send_confirmation_account_email
 
 #Create User Schema
 class UserSchema(Schema):
@@ -19,23 +16,6 @@ class UserSchema(Schema):
 user_schema = UserSchema() #return 1 user
 users_schema = UserSchema(many=True) #return many users
 
-def validate_password(password):
-    if len(password) < 8:
-        return "Password must be at least 8 chracters"
-    elif re.search('[0-9]',password) is None:
-        return "Password must contain at least one digit"
-    elif re.search('[A-Z]',password) is None: 
-        return "Password must contain at least one capital letter"
-    else:
-        return ""
-
-def validate_email(email):
-    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$' 
-    if re.search(regex,email) is None:   
-        return "Invalid email address"
-    else:   
-        return ""
-
 app_register = Blueprint('app_register',__name__)
 
 @app_register.route("/register", methods=["POST"])
@@ -44,72 +24,49 @@ def register():
     response = {}
 
     try:
+
         username_ = request.form['username']
         password_ = request.form['password']
         gender_ = request.form['gender']
         email_ = request.form['email']
         confirmpassword_ = request.form['confirmpassword']
 
-        #username_ = request.json.get('username', None)
-
-        if not username_:
-            response['message'] = 'Missing username'
-            response['status'] = 400
-            return jsonify(response)
-
-        if not password_:
-            response['message'] = 'Missing password'
-            response['status'] = 400
-            return jsonify(response)
-
-        elif validate_password(password_) != "":
-            response['message'] = validate_password(password_)
+        message, form_is_correct = valiadte_register_form(username_, password_, gender_, email_, confirmpassword_)
+        if not form_is_correct:
+            response['message'] = message
             response['status'] = 400
             return jsonify(response)
         
-        elif not confirmpassword_:
-            response['message'] = 'Missing password confirmation'
+        message, password_is_correct = validate_password(password_)
+        if not password_is_correct:
+            response['message'] = message
             response['status'] = 400
             return jsonify(response)
 
-        elif password_ != confirmpassword_:
-            response['message'] = 'Password confirmation incorrect'
+        message, email_is_correct = validate_email(email_)
+        if not email_is_correct:
+            response['message'] = message
             response['status'] = 400
             return jsonify(response)
         
-        if not email_:
-            response['message'] = 'Missing email'
+        message, password_confirm_matches = password_match_confrimation(password_, confirmpassword_)
+        if not password_confirm_matches:
+            response['message'] = message
             response['status'] = 400
             return jsonify(response)
-
-        elif validate_email(email_) != "":
-            response['message'] = validate_email(email_)
-            response['status'] = 400
-            return jsonify(response)
-
-        if not gender_:
-            response['message'] = 'Missing gender'
-            response['status'] = 400
-            return jsonify(response)
-
     
         hashed_password = bcrypt.hashpw(password_.encode('utf-8'), bcrypt.gensalt())
-
         registered_user = Users(username_, email_, gender_, hashed_password, admin=False, confirmed=False, confirmed_on=None)
-        #send_confirmation_account_email(email_)
 
-        db.session.add(registered_user)
-        db.session.commit()
-        response["message"] = 'User registered successfully'
-        response["status"] = 200
+        message, status = add_user_to_db(registered_user, db)
+        response['message'] = message
+        response['status'] = status
+
+        send_confirmation_account_email(email_)
+
         return jsonify(response)
+
         
-    except IntegrityError:
-        #the rollback func reverts the changes made to the db ( so if an error happens after we commited changes they will be reverted )
-        db.session.rollback()
-        response["message"] = 'User already exists'
-        response["status"] = 409
-        return jsonify(response)
 
     except AttributeError:
         response["message"] = 'Bad request - Provide an username and Password in JSON format in the request body'
@@ -125,8 +82,8 @@ def get_all_users():
         json: Returns a json stream containing all the current users
     """
     all_users = Users.query.all()
-    results =users_schema.dump(all_users)
-    return jsonify(results), 200
+    results =db.Model.dump(all_users)
+    return jsonify(all_users), 200
 
 
 @app_register.route("/generate-random-user", methods=["POST"])

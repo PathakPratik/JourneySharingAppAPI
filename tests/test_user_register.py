@@ -1,4 +1,5 @@
 from app import app
+from unittest.mock import MagicMock, patch
 
 class TestUserRegistration:
     
@@ -215,6 +216,7 @@ class TestUserRegistration:
         assert res_json == expected_res
            
     def test_similar_credentials(self):
+        session = MagicMock()
         tester = app.test_client(self)
         response = tester.post('/register', content_type='multipart/form-data',data=self.user_standard)
 

@@ -24,8 +24,8 @@ services:
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    #volumes:
-    #  - mysqlvol:/var/lib/mysql
+    volumes:
+      - mysqlvol:/var/lib/mysql
   redis:
     image: redis
     ports:
@@ -35,10 +35,8 @@ services:
   #  ports:
    #   - 80:80
 
-
-#volumes:
-#  mysqlvol:
-#     external:true
+volumes:
+  mysqlvol: null
 
 
 
