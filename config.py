@@ -23,7 +23,7 @@ class Config:
     #Flask-Mail
     MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 465
-    MAIL_USERNAME = 'mahdislami1377@gmail.com'
-    MAIL_PASSWORD = 'Mahdak1377'
+    MAIL_USERNAME = 'your_email'
+    MAIL_PASSWORD = 'your_password'
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
