@@ -1,6 +1,6 @@
 import re
 import bcrypt
-from setup import db
+from db import db
 from flask import Flask,request,jsonify,Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from Models.Users import Users
