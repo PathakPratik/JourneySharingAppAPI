@@ -1,6 +1,6 @@
 from app import app
 import fakeredis
-from mock import patch, create_autospec
+from mock import patch
 from Models.Users import Users
 
 class TestMatchUsers:
@@ -184,7 +184,7 @@ class TestMatchUsers:
 
         # Check for correct response
         res_json = response.get_json()
-        
+
         for maps in res_json:
             currUserID = maps["id"]
             for key, value in maps.items():
