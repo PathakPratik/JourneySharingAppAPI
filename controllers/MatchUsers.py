@@ -1,6 +1,8 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import Schema, fields, ValidationError
+from Models.Users import Users
 from constants import REDIS_JOURNEY_LIST
+from controllers.Register import UserSchema
 from services.MatchingAlgorithm import createJourney, matchingAlgorithm
 
 app_match_users = Blueprint('app_match_users',__name__)
@@ -87,4 +89,68 @@ def MatchUsers():
     # Get matches result
     res = matchingAlgorithm(curr_list, result)
 
-    return jsonify(res), 200
+    trueRes = []
+    for user in res:
+        # For each user that we matches the in terms of distance
+        # get their MatchUsersSchema
+        currUser = schema.load(user)
+        # Extract the user id from the schema
+        currId = currUser["UserId"]
+        # cross reference userid with the db and append the users 
+        # object to the trueRes list
+        trueRes.append(Users.query.filter_by(id=currId).first())
+
+    # Use the UsersSchema to dump and jsonify the user details
+    return jsonify(UserSchema(many=True).dump(trueRes)), 200
+
+@app_match_users.route("/create-n-matching-journeys",methods=['POST'])
+def CreateNMatchingJourneys():
+    """Creates N matching journeys, requires that the
+        users ids are already created. 
+    
+    Args: 
+        numjounreys, int: reads number of journeys to be created
+            from request
+
+    Returns:
+        json: Returns a json stream of the created journeys
+    """
+
+    #Get number of matching journeys to make
+    numJourneys = request.json['numjourneys']
+    addedJourneys = []
+
+    #Define mathcing journey conditions
+    UserID = 1
+    TripStartLocation = ["53.3451","-6.2657"]
+    TripStopLocation = ["53.3313","-6.27875"]
+    ScheduleTime = 43.54
+
+    for i in range(numJourneys):
+        #create the json for the journey
+        currJson = {
+            "UserId": UserID,
+            "TripStartLocation": TripStartLocation,
+            "TripStopLocation": TripStopLocation,
+            "ScheduleTime": ScheduleTime
+        }
+        currSchema = ScheduleJourneySchema()
+        try:
+            result = currSchema.load(currJson)
+            addedJourneys.append(result)
+        except ValidationError as err:
+            return jsonify(err.messages), 400
+
+        # Add new journey to the list with current timestamp as score
+        from app import redisClient
+        try:
+            score = result['ScheduleTime']
+            del result['ScheduleTime']
+            createJourney(result, redisClient, score)
+        except redisClient.RedisError as err:
+            return jsonify(err), 500
+
+        UserID += 1
+    
+    final = ScheduleJourneySchema(many=True).dump(addedJourneys)
+    return jsonify(final), 200
