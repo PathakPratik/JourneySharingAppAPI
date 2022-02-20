@@ -1,6 +1,7 @@
 from app import app
 import fakeredis
-from mock import patch
+from mock import patch, create_autospec
+from Models.Users import Users
 
 class TestMatchUsers:
     
@@ -16,10 +17,24 @@ class TestMatchUsers:
         "TripStopLocation": ["53.3313","-6.27875"]
     }
 
+    user_one = {
+    "id":1,
+    "email":"test1@gmail.com",
+    "username":"test1",
+    "gender":"Male"
+    }
+
     journey_two = {
         "UserId":2,
         "TripStartLocation": ["53.345"," -6.2624"],
         "TripStopLocation": ["53.33263","-6.27554"]
+    }
+
+    user_two = {
+    "id":2,
+    "email":"test2@gmail.com",
+    "username":"test2",
+    "gender":"Male"
     }
 
     journey_three = {
@@ -28,11 +43,34 @@ class TestMatchUsers:
         "TripStopLocation": ["53.33171","-6.27493"]
     }
 
+    user_three = {
+    "id":3,
+    "email":"test3@gmail.com",
+    "username":"test3",
+    "gender":"Male"
+    }
+
     journey_four = {
         "UserId":"4",
         "TripStartLocation": ["53.257","-6.126"],
         "TripStopLocation": ["53.2064","-6.1113"]
     }
+
+    user_four = {
+    "id":4,
+    "email":"test4@gmail.com",
+    "username":"test4",
+    "gender":"Male"
+    }
+
+    users_map = {
+        1:user_one,
+        2:user_two,
+        3:user_three,
+        4:user_four
+    }
+
+
 
     # Test for mandatory fields in payload
     def test_fields(self):
@@ -90,9 +128,16 @@ class TestMatchUsers:
     
     # Test for single match case
     @patch("app.redisClient", fakeredis.FakeStrictRedis())
-    def test_single_match(self):
+    @patch('flask_sqlalchemy._QueryProperty.__get__')
+    def test_single_match(self, mock_query):
+        #Create the mock query for this instance
         tester = app.test_client(self)
-        
+
+        users_for_test = [self.user_one,self.user_two]
+        mock_query\
+            .return_value.filter_by\
+            .return_value.first\
+            .side_effect = users_for_test
         # First Journey
         tester.post('/match-users', json=self.journey_one)
 
@@ -105,12 +150,24 @@ class TestMatchUsers:
 
         # Check for correct response
         res_json = response.get_json()
-        assert sorted(res_json[0].items()) == sorted(self.journey_one.items())
+
+        for maps in res_json:
+            currUserID = maps["id"]
+            for key, value in maps.items():
+                assert maps[key] == self.users_map[currUserID][key]
     
     # Test for multiple matches case
     @patch("app.redisClient", fakeredis.FakeStrictRedis())
-    def test_multiple_match(self):
+    @patch('flask_sqlalchemy._QueryProperty.__get__')
+    def test_multiple_match(self, mock_query):
         tester = app.test_client(self)
+
+        users_for_test = [self.user_one,self.user_two,self.user_three]
+
+        mock_query\
+            .return_value.filter_by\
+            .return_value.first\
+            .side_effect = users_for_test
         
         # First Journey
         tester.post('/match-users', json=self.journey_one)
@@ -127,11 +184,11 @@ class TestMatchUsers:
 
         # Check for correct response
         res_json = response.get_json()
-        expected_res = [self.journey_one, self.journey_two]
-        res_json = sorted(res_json, key=lambda d: d['UserId'])
-
-        for i in range(len(res_json)):
-            assert sorted(res_json[i].items()) == sorted(expected_res[i].items())
+        
+        for maps in res_json:
+            currUserID = maps["id"]
+            for key, value in maps.items():
+                assert maps[key] == self.users_map[currUserID][key]
     
     # Test for non-matching journey case
     @patch("app.redisClient", fakeredis.FakeStrictRedis())
