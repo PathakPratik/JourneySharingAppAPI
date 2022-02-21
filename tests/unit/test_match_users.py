@@ -160,7 +160,7 @@ class TestMatchUsers:
     # Test for multiple matches case
     @patch("app.redisClient", fakeredis.FakeStrictRedis())
     @patch('flask_sqlalchemy._QueryProperty.__get__')
-    def test_multiple_match(self, mock_query):
+    def test_two_match(self, mock_query):
         tester = app.test_client(self)
 
         users_for_test = [self.user_one,self.user_two,self.user_three]
