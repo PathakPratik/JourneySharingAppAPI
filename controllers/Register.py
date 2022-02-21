@@ -59,11 +59,11 @@ def register():
         registered_user = Users(username_, email_, gender_, hashed_password, admin=False, confirmed=False, confirmed_on=None)
 
         message, status = add_user_to_db(registered_user, db)
+        response['message'] = message
+        response['status'] = status
         if status == 400:
-            response['message'] = message
-            response['status'] = status
             return jsonify(response)
-
+            
         #send_confirmation_account_email(email_)
         return jsonify(response)
 
