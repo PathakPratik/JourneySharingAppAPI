@@ -51,7 +51,7 @@ class TestMatchUsers:
     }
 
     journey_four = {
-        "UserId":"4",
+        "UserId":4,
         "TripStartLocation": ["53.257","-6.126"],
         "TripStopLocation": ["53.2064","-6.1113"]
     }
@@ -133,7 +133,7 @@ class TestMatchUsers:
         #Create the mock query for this instance
         tester = app.test_client(self)
 
-        users_for_test = [self.user_one,self.user_two]
+        users_for_test = [self.user_two,self.user_one]
         mock_query\
             .return_value.filter_by\
             .return_value.first\
@@ -151,11 +151,12 @@ class TestMatchUsers:
         # Check for correct response
         res_json = response.get_json()
 
+        assert len(res_json)==1
+
         for maps in res_json:
             currUserID = maps["id"]
             for key, value in maps.items():
                 assert maps[key] == self.users_map[currUserID][key]
-    
     # Test for multiple matches case
     @patch("app.redisClient", fakeredis.FakeStrictRedis())
     @patch('flask_sqlalchemy._QueryProperty.__get__')
@@ -185,6 +186,9 @@ class TestMatchUsers:
         # Check for correct response
         res_json = response.get_json()
 
+        assert len(res_json) == 2
+
+        print(res_json)
         for maps in res_json:
             currUserID = maps["id"]
             for key, value in maps.items():
