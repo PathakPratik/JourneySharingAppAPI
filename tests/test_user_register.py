@@ -228,6 +228,7 @@ class TestUserRegistration:
             res_json = response.get_json()
             expected_res = {'message': 'User already exists', 'status': 409}
             assert res_json == expected_res
+        assert res_json == expected_res
 
 
 

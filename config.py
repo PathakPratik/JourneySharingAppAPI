@@ -20,8 +20,8 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(seconds=30)
 
     #Flask-Mail
-    MAIL_SERVER = str(environ.get('MAIL_SERVER'))
-    MAIL_PORT = (environ.get('MAIL_PORT'))
+    MAIL_SERVER='smtp.gmail.com'
+    MAIL_PORT=465
     MAIL_USERNAME = str(environ.get('MAIL_USERNAME'))
     MAIL_PASSWORD = str(environ.get('MAIL_PASSWORD'))
     MAIL_USE_TLS = False

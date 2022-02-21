@@ -90,7 +90,7 @@ def add_user_to_db(registered_user, db):
     
     except IntegrityError:
         db.session.rollback()
-        return 'User already exists', 409
+        return 'User already exists', 400
 
 def update_user_in_db(registered_user, db):
 

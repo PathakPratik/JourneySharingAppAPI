@@ -1,6 +1,5 @@
 import bcrypt
 from flask import request, jsonify, Blueprint, session
-from Models.Users import Users
 from services.UserModule import valiadte_login_form, check_password, find_user_by_email
 import uuid
 

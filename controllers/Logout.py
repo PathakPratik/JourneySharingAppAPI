@@ -4,7 +4,6 @@ from Decorator import login_required
 
 app_logout = Blueprint('app_logout',__name__)
 
-#
 
 @app_logout.route("/logout",methods=['GET'])
 @login_required
