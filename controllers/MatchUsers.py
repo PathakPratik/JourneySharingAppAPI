@@ -5,9 +5,11 @@ from constants import REDIS_JOURNEY_LIST
 from controllers.Register import UserSchema
 from services.MatchingAlgorithm import createJourney, matchingAlgorithm
 
-app_match_users = Blueprint('app_match_users',__name__)
+app_match_users = Blueprint('app_match_users', __name__)
 
 # Payload Schema for Schedule Journey API
+
+
 class ScheduleJourneySchema(Schema):
     UserId = fields.Integer(required=True)
     TripStartLocation = fields.List(fields.String(), required=True)
@@ -15,9 +17,11 @@ class ScheduleJourneySchema(Schema):
     ScheduleTime = fields.Float(required=True)
 
 # Schedule Journey API
+
+
 @app_match_users.route("/schedule-journey", methods=['POST'])
 def ScheduleJourney():
-    
+
     # Unmarshal Payload
     request_data = request.json
     schema = ScheduleJourneySchema()
@@ -43,6 +47,8 @@ def ScheduleJourney():
     return "Success", 200
 
 # Empty current Journey List
+
+
 @app_match_users.route("/delete-journeys", methods=['DELETE'])
 def DeleteJourneys():
 
@@ -55,12 +61,16 @@ def DeleteJourneys():
     return ("Success", 200)
 
 # Payload Schema for Match Users API
+
+
 class MatchUsersSchema(Schema):
     UserId = fields.Integer(required=True)
     TripStartLocation = fields.List(fields.String(), required=True)
     TripStopLocation = fields.List(fields.String(), required=True)
 
 # Match Users API
+
+
 @app_match_users.route("/match-users", methods=['POST'])
 def MatchUsers():
 
@@ -72,7 +82,7 @@ def MatchUsers():
     except ValidationError as err:
         return jsonify(err.messages), 400
 
-    # Get current journeys 
+    # Get current journeys
     from app import redisClient
     curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
 
@@ -87,7 +97,12 @@ def MatchUsers():
         return jsonify([]), 200
 
     # Get matches result
-    res = matchingAlgorithm(curr_list, result)
+    # res = matchingAlgorithm(curr_list, result)
+    res = [{
+        "UserId": "5",
+        "TripStartLocation": ["53.257", "-6.126"],
+        "TripStopLocation": ["53.2064", "-6.1113"]
+    }]
 
     trueRes = []
     for user in res:
@@ -96,18 +111,19 @@ def MatchUsers():
         currUser = schema.load(user)
         # Extract the user id from the schema
         currId = currUser["UserId"]
-        # cross reference userid with the db and append the users 
+        # cross reference userid with the db and append the users
         # object to the trueRes list
         trueRes.append(Users.query.filter_by(id=currId).first())
 
     # Use the UsersSchema to dump and jsonify the user details
     return jsonify(UserSchema(many=True).dump(trueRes)), 200
 
-@app_match_users.route("/create-n-matching-journeys",methods=['POST'])
+
+@app_match_users.route("/create-n-matching-journeys", methods=['POST'])
 def CreateNMatchingJourneys():
     """Creates N matching journeys, requires that the
         users ids are already created. 
-    
+
     Args: 
         numjounreys, int: reads number of journeys to be created
             from request
@@ -116,18 +132,18 @@ def CreateNMatchingJourneys():
         json: Returns a json stream of the created journeys
     """
 
-    #Get number of matching journeys to make
+    # Get number of matching journeys to make
     numJourneys = request.json['numjourneys']
     addedJourneys = []
 
-    #Define mathcing journey conditions
+    # Define mathcing journey conditions
     UserID = 1
-    TripStartLocation = ["53.3451","-6.2657"]
-    TripStopLocation = ["53.3313","-6.27875"]
+    TripStartLocation = ["53.3451", "-6.2657"]
+    TripStopLocation = ["53.3313", "-6.27875"]
     ScheduleTime = 43.54
 
     for i in range(numJourneys):
-        #create the json for the journey
+        # create the json for the journey
         currJson = {
             "UserId": UserID,
             "TripStartLocation": TripStartLocation,
@@ -151,6 +167,6 @@ def CreateNMatchingJourneys():
             return jsonify(err), 500
 
         UserID += 1
-    
+
     final = ScheduleJourneySchema(many=True).dump(addedJourneys)
     return jsonify(final), 200
