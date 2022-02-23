@@ -1,10 +1,13 @@
+import imp
 import bcrypt
+import os
 from Models.Users import Users
 import re
 from setup import url_safe_timed_serializer, mail
 from sqlalchemy.exc import IntegrityError
 from flask_mail import Message
 from flask import url_for
+from smtplib import SMTPException
 
 def valiadte_login_form(password, email):
 
@@ -100,8 +103,11 @@ def update_user_in_db(registered_user, db):
 
 def send_confirmation_account_email(email):
     token = url_safe_timed_serializer.dumps(email, salt='email-confirm')
-    msg = Message('Confirm Email', sender='mahdislami1377@gmail.com', recipients=[email])
+    msg = Message('Confirm Email', sender='journeysharingappgroup12@gmail.com', recipients=[email])
     link = url_for('confirm_email.confirm_email', token=token, _external=True)
     msg.body = 'Your link is {}'.format(link)
-    mail.send(msg)
-    return
+    try:
+        mail.send(msg)
+        return 'Confimration email sent successfully', 200
+    except SMTPException:
+        return 'Unable to send confirmation email', 400

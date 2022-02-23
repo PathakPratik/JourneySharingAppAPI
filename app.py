@@ -27,9 +27,6 @@ app.register_blueprint(app_register)
 from controllers.Login import app_login
 app.register_blueprint(app_login)
 
-from controllers.Logout import app_logout
-app.register_blueprint(app_logout)
-
 from controllers.EmailConformation import app_confirm_email
 app.register_blueprint(app_confirm_email)
 

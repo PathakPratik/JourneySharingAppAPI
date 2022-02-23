@@ -42,6 +42,7 @@ sqlalchemy = "*"
 pymysql = "*"
 flask-mail = "*"
 pytest = "*"
+python-dotenv = "*"
 
 [dev-packages]
 pytest = "*"

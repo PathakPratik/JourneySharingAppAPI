@@ -1,6 +1,7 @@
 import bcrypt
 from flask import request, jsonify, Blueprint, session
 from services.UserModule import valiadte_login_form, check_password, find_user_by_email
+from Decorator import login_required
 import uuid
 
 app_login = Blueprint('app_login',__name__)
@@ -36,6 +37,7 @@ def login():
 
         response["message"] = 'User logged in successfully'
         response["status"] = 200
+        response['session'] = session
         return jsonify(response)
 
     except AttributeError:
@@ -43,3 +45,16 @@ def login():
         response["status"] = 400
         return jsonify(response)
 
+@app_login.route("/logout")
+@login_required
+def logout():
+    response = {}
+    response["message"] = 'User logged out successfully'
+    response["status"] = 200
+    print(session['id'])
+    session.pop('id', None)
+    return jsonify(response)
+
+@app_login.route("/get/")
+def show_session():
+     return str(session.get('id', 'not set'))

@@ -1,3 +1,4 @@
+import os
 from os import environ
 from datetime import timedelta
 import redis
@@ -22,7 +23,7 @@ class Config:
     #Flask-Mail
     MAIL_SERVER='smtp.gmail.com'
     MAIL_PORT=465
-    MAIL_USERNAME = str(environ.get('MAIL_USERNAME'))
-    MAIL_PASSWORD = str(environ.get('MAIL_PASSWORD'))
+    MAIL_USERNAME = 'journeysharingappgroup12@gmail.com'
+    MAIL_PASSWORD = 'Group12password'
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True

@@ -63,8 +63,10 @@ def register():
         response['status'] = status
         if status == 400:
             return jsonify(response)
-            
-        #send_confirmation_account_email(email_)
+
+        message, status = send_confirmation_account_email(email_)
+        response['message'] = message
+        response['status'] = status
         return jsonify(response)
 
         

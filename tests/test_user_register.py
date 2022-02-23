@@ -214,9 +214,9 @@ class TestUserRegistration:
         res_json = response.get_json()
         expected_res = {'message': 'User registered successfully', 'status': 200}
         assert res_json == expected_res
-           
+    
     def test_similar_credentials(self):
-        session = MagicMock()
+    
         tester = app.test_client(self)
         response = tester.post('/register', content_type='multipart/form-data',data=self.user_standard)
 

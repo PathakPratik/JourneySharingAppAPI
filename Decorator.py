@@ -10,7 +10,5 @@ def login_required(f):
             response["message"] = 'Session id not found'
             response["status"] = 400
             return jsonify(response)
-        response["message"] = 'Session id found'
-        response["status"] = 200
-        return jsonify(response)
+        return f()
     return decorated_function
