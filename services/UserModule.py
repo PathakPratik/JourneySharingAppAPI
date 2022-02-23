@@ -103,7 +103,7 @@ def update_user_in_db(registered_user, db):
 
 def send_confirmation_account_email(email):
     token = url_safe_timed_serializer.dumps(email, salt='email-confirm')
-    msg = Message('Confirm Email', sender='journeysharingappgroup12@gmail.com', recipients=[email])
+    msg = Message('Confirm Email', sender=str(os.environ.get('MAIL_USERNAME')), recipients=[email])
     link = url_for('confirm_email.confirm_email', token=token, _external=True)
     msg.body = 'Your link is {}'.format(link)
     try:
