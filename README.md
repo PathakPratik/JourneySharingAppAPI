@@ -8,7 +8,7 @@ Change the directory to SQL-Docker, in this folder, you find a Dockerfile used f
 
 Then go back to the main Directory and run:
 
-`docker build -t journey_sharing_app:v1`
+`docker build -t journey_sharing_app:v1 .`
 
 After building, run the app by running:
 
