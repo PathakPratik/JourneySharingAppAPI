@@ -6,7 +6,7 @@ import re
 from setup import url_safe_timed_serializer, mail
 from sqlalchemy.exc import IntegrityError
 from flask_mail import Message
-from flask import url_for
+from flask import url_for, session
 from smtplib import SMTPException
 
 def valiadte_login_form(password, email):
@@ -102,12 +102,22 @@ def update_user_in_db(registered_user, db):
     return 'User info updated successfully', 200
 
 def send_confirmation_account_email(email):
+    print(1)
     token = url_safe_timed_serializer.dumps(email, salt='email-confirm')
-    msg = Message('Confirm Email', sender=str(os.environ.get('MAIL_USERNAME')), recipients=[email])
+    print(2)
+    msg = Message('Confirm Email', sender='journeysharingappgroup12@gmail.com', recipients=[email])
+    print(3)
     link = url_for('confirm_email.confirm_email', token=token, _external=True)
+    print(4)
     msg.body = 'Your link is {}'.format(link)
+    print(5)
     try:
         mail.send(msg)
+        print(6)
         return 'Confimration email sent successfully', 200
     except SMTPException:
+        print(7)
         return 'Unable to send confirmation email', 400
+
+def show_session_ids():
+    return str(session)

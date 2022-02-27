@@ -1,5 +1,12 @@
 from app import app
-from unittest.mock import MagicMock, patch
+from setup import db
+
+app.config.from_object('tests.config_test.Config')
+db.init_app(app)
+
+with app.app_context():
+    db.drop_all()
+    db.create_all()
 
 class TestUserRegistration:
     
@@ -92,19 +99,19 @@ class TestUserRegistration:
     }
 
     user_standard = {
-        'username' : 'test_user',
+        'username' : 'test_user_',
         'password' : 'Secretpassword1',
         'confirmpassword' : 'Secretpassword1',
         'gender' : 'male',
-        'email' : 'test_user@test.com'
+        'email' : 'journeysharingappgroup12@gmail.com'
     }
 
     user_standard_2 = {
-        'username' : 'test_user_25',
+        'username' : 'test_user_2',
         'password' : 'Secretpassword1',
         'confirmpassword' : 'Secretpassword1',
         'gender' : 'male',
-        'email' : 'test_user25@test.com'
+        'email' : 'meslami@tcd.ie'
     }
 
     def test_missing_username(self):
@@ -208,7 +215,7 @@ class TestUserRegistration:
 
     def test_user_registration(self):
         tester = app.test_client(self)
-        response = tester.post('/register', content_type='multipart/form-data',data=self.user_standard_2)
+        response = tester.post('/register', content_type='multipart/form-data',data=self.user_standard)
 
         # Check for correct validation error
         res_json = response.get_json()
@@ -218,18 +225,15 @@ class TestUserRegistration:
     def test_similar_credentials(self):
     
         tester = app.test_client(self)
-        response = tester.post('/register', content_type='multipart/form-data',data=self.user_standard)
+        response = tester.post('/register', content_type='multipart/form-data',data=self.user_standard_2)
 
         # Check for correct validation error
         res_json = response.get_json()
         expected_res = {'message': 'User registered successfully', 'status': 200}
         if res_json == expected_res:
-            response = tester.post('/register', content_type='multipart/form-data',data=self.user_standard)
+            response = tester.post('/register', content_type='multipart/form-data',data=self.user_standard_2)
             res_json = response.get_json()
-            expected_res = {'message': 'User already exists', 'status': 409}
+            expected_res = {'message': 'User already exists', 'status': 400}
             assert res_json == expected_res
         assert res_json == expected_res
 
-
-
-        

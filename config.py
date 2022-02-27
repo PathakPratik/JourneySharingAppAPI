@@ -17,8 +17,10 @@ class Config:
     SESSION_TYPE = 'redis'
     SESSION_REDIS = redis.from_url('redis://redis:6379')
     SESSION_PERMANENT = False
-    SESSION_USE_SIGNER = True
-    PERMANENT_SESSION_LIFETIME = timedelta(seconds=30)
+    SESSION_USE_SIGNER = False
+    PERMANENT_SESSION_LIFETIME = timedelta(seconds=100)
+    SESSION_COOKIE_SAMESITE= "None"
+    SESSION_COOKIE_SECURE= True
 
     #Flask-Mail
     MAIL_SERVER='smtp.gmail.com'

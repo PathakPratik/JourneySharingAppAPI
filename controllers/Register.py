@@ -65,8 +65,7 @@ def register():
             return jsonify(response)
 
         message, status = send_confirmation_account_email(email_)
-        response['message'] = message
-        response['status'] = status
+
         return jsonify(response)
 
         
