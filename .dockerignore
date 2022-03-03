@@ -1,4 +1,3 @@
-.env
 .gitignore
 Dockerfile
 docker-compose.yml
