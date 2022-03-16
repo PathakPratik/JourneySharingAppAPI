@@ -1,7 +1,10 @@
 from app import app
 from setup import db
 
-app.config.from_object('tests.config_test.Config')
+app.config['SECRET_KEY'] = 'secret_key'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+
 db.init_app(app)
 
 with app.app_context():

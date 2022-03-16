@@ -1,8 +1,10 @@
 import bcrypt
-from setup import db
 from flask import request,jsonify,Blueprint
 from Models.Users import Users
-from services.UserModule import valiadte_register_form, validate_email, validate_password , password_match_confrimation, add_user_to_db
+from services.UserModule import validate_register_form, validate_email, validate_password , \
+                                password_match_confrimation, add_user_to_db, send_confirmation_account_email
+from setup import db
+
 
 app_register = Blueprint('app_register',__name__)
 
@@ -19,7 +21,7 @@ def register():
         email_ = request.form['email']
         confirmpassword_ = request.form['confirmpassword']
 
-        message, form_is_correct = valiadte_register_form(username_, password_, gender_, email_, confirmpassword_)
+        message, form_is_correct = validate_register_form(username_, password_, gender_, email_, confirmpassword_)
         if not form_is_correct:
             response['message'] = message
             response['status'] = 400
@@ -49,6 +51,10 @@ def register():
         message, status = add_user_to_db(registered_user, db)
         response['message'] = message
         response['status'] = status
+        if status == 400:
+            return jsonify(response)
+
+        message, status = send_confirmation_account_email(email_)
 
         return jsonify(response)
 
