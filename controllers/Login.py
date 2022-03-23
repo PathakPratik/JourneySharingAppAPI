@@ -1,6 +1,6 @@
 import bcrypt
 from flask import request, jsonify, Blueprint
-from services.UserModule import valiadte_login_form, check_password, find_user_by_email
+from services.UserModule import validate_login_form, check_password, find_user_by_email
 import uuid
 
 app_login = Blueprint('app_login',__name__)
@@ -14,7 +14,7 @@ def login():
         email_ = request.form['email']
         password_ = request.form['password']
 
-        message, form_is_correct = valiadte_login_form(password_, email_)
+        message, form_is_correct = validate_login_form(password_, email_)
         if not form_is_correct:
             response['message'] = message
             response['status'] = 400

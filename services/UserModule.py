@@ -1,10 +1,15 @@
 import bcrypt
-from Models.Users import Users
 import re
+from flask import url_for
+from flask_mail import Message
+from Models.Users import Users
+from os import environ
+from setup import url_safe_timed_serializer, mail
 from sqlalchemy.exc import IntegrityError
 from smtplib import SMTPException
 
-def valiadte_login_form(password, email):
+
+def validate_login_form(password, email):
 
     if not email:
         return 'Missing email', False
@@ -52,7 +57,7 @@ def validate_email(email):
 
     return 'Valid email address', True
 
-def valiadte_register_form(username, password, gender, email, confirmpassword):
+def validate_register_form(username, password, gender, email, confirmpassword):
 
     if not username:
         return 'Missing username', False
@@ -90,6 +95,7 @@ def add_user_to_db(registered_user, db):
         db.session.rollback()
         return 'User already exists', 400
 
+
 def update_user_in_db(registered_user, db):
 
     db.session.add(registered_user)
@@ -97,3 +103,13 @@ def update_user_in_db(registered_user, db):
     return 'User info updated successfully', 200
 
 
+def send_confirmation_account_email(email):
+    token = url_safe_timed_serializer.dumps(email, salt='email-confirm')
+    msg = Message('Confirm Email', sender='journeysharingappgroup12@gmail.com', recipients=[email])
+    link = url_for('confirm_email.confirm_email', token=token, _external=True)
+    msg.body = 'Your link is {}'.format(link)
+    try:
+        mail.send(msg)
+        return 'Confimration email sent successfully', 200
+    except SMTPException:
+        return 'Unable to send confirmation email', 400
