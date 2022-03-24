@@ -13,8 +13,13 @@ def update_rating():
     new_ratings = request.form['rating']
     message, user = find_user_by_email(email_)
 
-    user.travel_count += 1 
-    user.current_rating = (user.current_rating + int(new_ratings)) / user.travel_count
+    if user is None:
+        response['message']=message
+        response['status']=400
+        return jsonify(response)
+
+    user.rating_count += 1 
+    user.current_rating = (user.current_rating + int(new_ratings)) / user.rating_count
 
     message, status = update_user_in_db(user, db)
 
