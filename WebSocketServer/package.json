@@ -1,0 +1,15 @@
+{
+  "name": "websocketserver",
+  "version": "1.0.0",
+  "description": "This is web socket server written in NodeJs to show real time match results",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pratik Pathak",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.3",
+    "socket.io": "^4.4.1"
+  }
+}
