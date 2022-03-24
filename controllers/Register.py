@@ -46,7 +46,9 @@ def register():
             return jsonify(response)
     
         hashed_password = bcrypt.hashpw(password_.encode('utf-8'), bcrypt.gensalt())
-        registered_user = Users(username_, email_, gender_, hashed_password, admin=False, confirmed=False, confirmed_on=None)
+        registered_user = Users(username_, email_, gender_, hashed_password, \
+                                admin=False, confirmed=False, confirmed_on=None,\
+                                current_rating=0, travel_count=0)
 
         message, status = add_user_to_db(registered_user, db)
         response['message'] = message

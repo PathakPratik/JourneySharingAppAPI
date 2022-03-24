@@ -15,8 +15,11 @@ class Users(db.Model):
     admin = db.Column(db.Boolean, nullable=False, default=False)
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
     confirmed_on = db.Column(db.DateTime, nullable=True)
+    current_rating = db.Column(db.Integer, nullable = True)
+    travel_count = db.Column(db.Integer, nullable = True)
 
-    def __init__(self, username, email, gender, password, admin, confirmed, confirmed_on):
+
+    def __init__(self, username, email, gender, password, admin, confirmed, confirmed_on, current_rating, travel_count):
         self.username = username
         self.email = email
         self.gender = gender
@@ -25,5 +28,8 @@ class Users(db.Model):
         self.admin = admin
         self.confirmed = confirmed
         self.confirmed_on = confirmed_on
+        self.current_rating = current_rating
+        self.travel_count = travel_count
+
 
         

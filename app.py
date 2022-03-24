@@ -34,10 +34,14 @@ from controllers.EmailConformation import app_confirm_email
 app.register_blueprint(app_confirm_email)
 
 
+# Add Rating Confirmation Controller
+from controllers.Ratings import app_ratings
+app.register_blueprint(app_ratings)
+
 if __name__ == "__main__":
     with app.app_context():
         #init_db = init() #Initialize the DB migriation path
         db.create_all()
-        #migrate() #DB migration
-        #upgrade() #DB Upgrade
+        migrate() #DB migration
+        upgrade() #DB Upgrade
     app.run(debug=True, host=FLASK_HOSTNAME, port=FLASK_PORT)
