@@ -1,5 +1,5 @@
 from constants import FLASK_HOSTNAME, FLASK_PORT, REDIS_HOST, REDIS_PORT
-from setup import db, migrate_db, mail
+from setup import db, migrate_db, mail, session_
 from flask import Flask
 from flask_migrate import init, migrate, upgrade
 import redis
@@ -13,6 +13,7 @@ app.config.from_object('config.Config')
 
 db.init_app(app)
 migrate_db.init_app(app, db)
+session_.init_app(app)
 mail.init_app(app)
 
 redisClient = redis.Redis(host=REDIS_HOST, port=REDIS_PORT)
@@ -28,6 +29,10 @@ app.register_blueprint(app_register)
 # Add Login Controller
 from controllers.Login import app_login
 app.register_blueprint(app_login)
+
+# Add Logout Controller
+from controllers.Logout import app_logout
+app.register_blueprint(app_logout)
 
 # Add Email Confirmation Controller
 from controllers.EmailConformation import app_confirm_email

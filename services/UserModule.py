@@ -1,12 +1,15 @@
 import bcrypt
 import re
-from flask import url_for
+from flask import url_for, jsonify, session
 from flask_mail import Message
 from Models.Users import Users
 from os import environ
 from setup import url_safe_timed_serializer, mail
 from sqlalchemy.exc import IntegrityError
 from smtplib import SMTPException
+from functools import wraps
+
+
 
 
 def validate_login_form(password, email):
@@ -113,3 +116,14 @@ def send_confirmation_account_email(email):
         return 'Confimration email sent successfully', 200
     except SMTPException:
         return 'Unable to send confirmation email', 400
+
+def login_required(f):
+    @wraps(f)
+    def decorated_function():
+        response = {}
+        if 'id' not in session:
+            response["message"] = 'Session id not found'
+            response["status"] = 400
+            return jsonify(response)
+        return f()
+    return decorated_function

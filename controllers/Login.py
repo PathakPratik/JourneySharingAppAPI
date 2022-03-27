@@ -1,5 +1,4 @@
-import bcrypt
-from flask import request, jsonify, Blueprint
+from flask import request, jsonify, Blueprint, session
 from services.UserModule import validate_login_form, check_password, find_user_by_email
 import uuid
 
@@ -32,6 +31,11 @@ def login():
             response["status"] = 400
             return jsonify(response)
         
+
+        session['id'] = uuid.uuid4()
+        session.modified = True
+        print(session['id'])
+
         response["message"] = 'User logged in successfully'
         response["status"] = 200
  

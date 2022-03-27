@@ -1,5 +1,7 @@
 from os import environ
 from dotenv import dotenv_values
+from datetime import timedelta
+import redis
 
 ENV = dotenv_values(".env")
 
@@ -25,3 +27,10 @@ class Config:
     #MAIL_PASSWORD = str(environ.get('MAIL_PASSWORD'))
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
+
+    # Flask-Session
+    SESSION_TYPE = 'redis'
+    SESSION_REDIS = redis.from_url('redis://redis:6379')
+    SESSION_PERMANENT = False
+    SESSION_USE_SIGNER = True
+    PERMANENT_SESSION_LIFETIME = timedelta(seconds=100)
