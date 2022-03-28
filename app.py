@@ -3,9 +3,6 @@ from setup import db, migrate_db, mail
 from flask import Flask
 from flask_migrate import init, migrate, upgrade
 import redis
-from sqlalchemy.exc import IntegrityError
-from time import sleep
-
 
 app = Flask(__name__, instance_relative_config=False)
 app.config.from_object('config.Config')

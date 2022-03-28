@@ -9,6 +9,7 @@ services:
       - .:/app
     depends_on:
       - db
+      - redis
     restart: on-failure:15
     environment:
       - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
@@ -35,9 +36,12 @@ services:
       - "6379:6379"
   websocketserver:
     image: web_socket_server:v1
-    entrypoint: node index.js
+    entrypoint: npm start
     ports:
       - '3000:3000'
+    depends_on:
+      - redis
+      - api
   # reoutehandler:
   #  image: nginix_route_handler:1.0.0
   #  ports:

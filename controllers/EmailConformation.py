@@ -31,4 +31,19 @@ def confirm_email(token):
         response['message'] = "User email could not be confirmed"
         response['status'] = 400
         return jsonify(response)
+
+@app_confirm_email.route('/hello-world')
+def helloWorld():
+
+    response = {}
+
+    try:
+        response['message'] = "Hello World"
+        response['status'] = 200
+        return jsonify(response)
+
+    except:
+        response['message'] = "Error"
+        response['status'] = 400
+        return jsonify(response)
     

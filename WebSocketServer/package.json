@@ -4,12 +4,15 @@
   "description": "This is web socket server written in NodeJs to show real time match results",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon -L --inspect=0.0.0.0 index.js"
   },
   "author": "Pratik Pathak",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.26.1",
     "express": "^4.17.3",
+    "nodemon": "^2.0.15",
     "socket.io": "^4.4.1"
   }
 }
