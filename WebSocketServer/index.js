@@ -1,25 +1,45 @@
-const app = require('express')();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
+const app = require("express")();
+const http = require("http").Server(app);
+const io = require("socket.io")(http);
 const path = require("path");
-const MatchUsers = require("./matchUsers")
+const HelloWorld = require("./helloWorld");
+const MatchUsers = require("./matchUsers");
+const Redis = require("ioredis");
 
-app.use('/', MatchUsers)
+const redis = new Redis(6379, "redis");
 
-app.get('/', function(req, res) {
-   res.sendFile(path.resolve(__dirname,'./index.html'));
+app.use("/", HelloWorld);
+
+app.get("/", function (req, res) {
+  res.sendFile(path.resolve(__dirname, "./index.html"));
 });
 
-io.on('connection', function(socket) {
-   console.log('A user connected:', socket.id);
+redis
+  .del("clients")
+  .then((res) => console.log("Restarted Socket Server:", res))
+  .catch((err) => console.log(err));
 
-   socket.emit("hello", "world");
+io.on("connection", async (socket) => {
+  await redis.sadd("clients", socket.id);
 
-   socket.on('disconnect', function () {
-      console.log('A user disconnected:', socket.id);
-   });
+  socket.on("routeMatches", async (payload) => {
+    try {
+      const res = await MatchUsers(payload);
+      msg = {
+        action: "routeMatches",
+        res,
+      };
+      io.to(socket.id).emit("routeMatchesResponse", msg);
+    } catch (err) {
+      console.log("Something went wrong!!");
+    }
+  });
+
+  socket.on("disconnect", async () => {
+    await redis.srem("clients", socket.id);
+  });
 });
 
-http.listen(3000, function() {
-   console.log('listening on *:3000');
+http.listen(3000, function () {
+  console.log("listening on *:3000");
 });

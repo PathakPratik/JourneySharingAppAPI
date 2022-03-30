@@ -8,7 +8,18 @@
    <script>
       const socket = io();
 
+      const payload = {
+            "UserId":1,
+            "TripStartLocation": ["53.344"," -6.2625"],
+            "TripStopLocation": ["53.33263","-6.27554"]
+        }
+
+      socket.emit('routeMatches', payload)
+
       socket.on("hello", (arg) => {
+        console.log(arg);
+      });
+      socket.on("routeMatchesResponse", (arg) => {
         console.log(arg);
       });
    </script>

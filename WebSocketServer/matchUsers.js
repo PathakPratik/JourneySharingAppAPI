@@ -1,17 +1,12 @@
-const express = require('express')
-const router = express.Router()
-const axios = require('axios').default;
+const axios = require("axios").default;
 
-router.get('/hello-world', function(req, res) {
-    axios.get('http://api:5000/hello-world')
-   .then(function (response) {
-     // handle success
-     res.json(response.data.message)
-   })
-   .catch(function (error) {
-     // handle error
-     res.json(error)
-   })
- });
+const MatchUsersAPI = async (payload) => {
+  try {
+    const res = await axios.post("http://api:5000/match-users", payload);
+    return res.data;
+  } catch (err) {
+    return err;
+  }
+};
 
-module.exports = router
+module.exports = MatchUsersAPI;
