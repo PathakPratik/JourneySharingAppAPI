@@ -31,8 +31,7 @@ def login():
             response["status"] = 400
             return jsonify(response)
         
-
-        session['id'] = uuid.uuid4()
+        session['id'] = user.id
         session.modified = True
         print(session['id'])
 

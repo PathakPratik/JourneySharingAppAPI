@@ -31,6 +31,15 @@ def find_user_by_email(email):
 
     return 'User found', user
 
+def find_user_by_id(id):
+
+    user = Users.query.filter_by(id=id).first()
+
+    if not user:
+        return 'User not found', None
+
+    return 'User found', user
+
 def check_password(user, password):
     
     if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
