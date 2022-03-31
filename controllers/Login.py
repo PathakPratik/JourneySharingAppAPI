@@ -21,13 +21,13 @@ def login():
         
         message, user = find_user_by_email(email_)
         if(user == None):
-            response["message"] = 'User not found'
+            response["message"] = message
             response["status"] = 400
             return jsonify(response)
         
         message, password_is_correct = check_password(user, password_)
         if not password_is_correct:
-            response["message"] = 'Wrong password'
+            response["message"] = message
             response["status"] = 400
             return jsonify(response)
         
