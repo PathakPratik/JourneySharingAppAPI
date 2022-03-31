@@ -45,7 +45,7 @@ class TestUsersRatings:
         assert res_json == expected_res
     
     def test_range_of_ratings(self):
-        if (Ratings.ratings_Currentlyt > 5):
+        if (Ratings.ratings_Currently > 5):
             response = tester.post('/update_rating', content_type='multipart/form-data')
                     # Check for correct validation error
             res_json = response.get_json()
