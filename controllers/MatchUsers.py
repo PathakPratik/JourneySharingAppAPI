@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from marshmallow import Schema, fields, ValidationError
 from constants import REDIS_JOURNEY_LIST
 from services.MatchingAlgorithm import createJourney, matchingAlgorithm
+import json
 
 app_match_users = Blueprint('app_match_users',__name__)
 
@@ -27,9 +28,7 @@ def ScheduleJourney():
     # Add new journey to the list with current timestamp as score
     from app import redisClient
     try:
-        score = result['ScheduleTime']
-        del result['ScheduleTime']
-        createJourney(result, redisClient, score)
+        createJourney(result, redisClient, result['UserId'])
     except redisClient.RedisError as err:
         return jsonify(err), 500
 
@@ -76,7 +75,7 @@ def MatchUsers():
 
     # Add new journey to the list
     try:
-        createJourney(result, redisClient)
+        createJourney(result, redisClient, result['UserId'])
     except redisClient.RedisError as err:
         return jsonify(err), 500
 
