@@ -1,5 +1,5 @@
 from flask import request, jsonify, Blueprint, session
-from services.UserModule import validate_login_form, check_password, find_user_by_email
+from services.UserUtility import validate_login_form, check_password, find_user_by_email
 import uuid
 
 app_login = Blueprint('app_login',__name__)
@@ -33,7 +33,6 @@ def login():
         
         session['id'] = user.id
         session.modified = True
-        print(session['id'])
 
         response["message"] = 'User logged in successfully'
         response["status"] = 200

@@ -1,7 +1,7 @@
 import bcrypt
 from flask import request,jsonify,Blueprint
 from Models.Users import Users
-from services.UserModule import validate_register_form, validate_email, validate_password , \
+from services.UserUtility import validate_register_form, validate_email, validate_password , \
                                 password_match_confrimation, add_user_to_db, send_confirmation_account_email
 from setup import db
 

@@ -33,4 +33,4 @@ class Config:
     SESSION_REDIS = redis.from_url('redis://redis:6379')
     SESSION_PERMANENT = False
     SESSION_USE_SIGNER = True
-    PERMANENT_SESSION_LIFETIME = timedelta(seconds=100)
+    PERMANENT_SESSION_LIFETIME = timedelta(seconds=10)

@@ -42,6 +42,7 @@ sqlalchemy = "*"
 pymysql = "*"
 flask-mail = "*"
 python-dotenv = "*"
+geopy = "==2.2.0"
 
 [dev-packages]
 pytest = "*"

@@ -38,6 +38,22 @@ app.register_blueprint(app_logout)
 from controllers.EmailConformation import app_confirm_email
 app.register_blueprint(app_confirm_email)
 
+# Add Email Confirmation Controller
+from controllers.CreateScheduledJourney import app_create_scheduled_journey
+app.register_blueprint(app_create_scheduled_journey)
+
+# Add Email Confirmation Controller
+from controllers.SearchScheduledJourney import app_search_scheduled_journey
+app.register_blueprint(app_search_scheduled_journey)
+
+# Add Email Confirmation Controller
+from controllers.JoinScheduledJourney import app_join_scheduled_journey
+app.register_blueprint(app_join_scheduled_journey)
+
+# Add Email Confirmation Controller
+from controllers.GetScheduledJourney import app_get_scheduled_journey
+app.register_blueprint(app_get_scheduled_journey)
+
 
 if __name__ == "__main__":
     with app.app_context():

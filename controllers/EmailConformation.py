@@ -3,7 +3,7 @@ from setup import db
 from flask import jsonify,Blueprint
 from Models.Users import Users
 from itsdangerous import SignatureExpired
-from services.UserModule import find_user_by_email, update_user_in_db
+from services.UserUtility import find_user_by_email, update_user_in_db
 import datetime
 
 app_confirm_email = Blueprint('confirm_email',__name__)

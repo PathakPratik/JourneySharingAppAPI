@@ -1,32 +1,52 @@
+from enum import unique
+from venv import create
 from setup import db
 import datetime
 # this class is for creating tables in db
 
-class Users(db.Model):
+class ScheduledJourney(db.Model):
     
     __tablename__ = 'scheduled_jorney'
 
     id = db.Column(db.Integer, primary_key=True)
-    source_longitude = db.Column(db.String(80), unique=True, nullable=False)
-    source_latitude = db.Column(db.String(80), unique=True, nullable=False)
-    destination_longitude = db.Column(db.String(80), unique=True, nullable=False)
-    destination_latitude = db.Column(db.String(80), unique=True, nullable=False)
-    weekday = db.Column(db.String(80), unique=True, nullable=False)
-    hour = db.Column(db.String(80), unique=True, nullable=False)
-    gender_preference =  db.Column(db.String(80), unique=True, nullable=False)
-    required_rating = db.Column(db.String(80), unique=True, nullable=False)
+    journey_name = db.Column(db.String(80), unique= True, nullable=False)
+    creator_id = db.Column(db.String(80), nullable=False)
+    source_longitude = db.Column(db.String(200), nullable=False)
+    source_latitude = db.Column(db.String(200), nullable=False)
+    destination_longitude = db.Column(db.String(200), nullable=False)
+    destination_latitude = db.Column(db.String(200), nullable=False)
+    weekday = db.Column(db.String(80), nullable=False)
+    hour = db.Column(db.String(80), nullable=False)
+    gender_preference =  db.Column(db.String(80), nullable=True)
+    required_rating = db.Column(db.String(80), nullable=True)
+    quota = db.Column(db.String(80), nullable=True)
+    members = db.Column(db.String(100), nullable=False)
 
 
-    def __init__(self, source_longitude, source_latitude, \
-                        destination_longitude, destination_latitude,
-                             gender, password, admin, confirmed, confirmed_on):
-        self.source_longitude = db.Column(db.String(80), unique=True, nullable=False)
-        self.source_latitude = db.Column(db.String(80), unique=True, nullable=False)
-        self.destination_longitude = db.Column(db.String(80), unique=True, nullable=False)
-        self.destination_latitude = db.Column(db.String(80), unique=True, nullable=False)
-        self.weekday = db.Column(db.String(80), unique=True, nullable=False)
-        self.hour = db.Column(db.String(80), unique=True, nullable=False)
-        self.gender_preference =  db.Column(db.String(80), unique=True, nullable=False)
-        self.required_rating = db.Column(db.String(80), unique=True, nullable=False)
+    def __init__(self,
+                creator_id,
+                journey_name,
+                source_longitude,
+                source_latitude, 
+                destination_longitude,
+                destination_latitude, 
+                weekday,
+                hour, 
+                gender_preference,
+                required_rating,
+                quota):
+
+        self.creator_id = creator_id  
+        self.journey_name = journey_name          
+        self.source_longitude = source_longitude
+        self.source_latitude = source_latitude
+        self.destination_longitude = destination_longitude 
+        self.destination_latitude = destination_latitude
+        self.weekday = weekday
+        self.hour = hour
+        self.gender_preference =  gender_preference
+        self.required_rating = required_rating
+        self.quota = quota
+        self.members = str(creator_id) + "/"
 
         
