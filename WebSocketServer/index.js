@@ -44,6 +44,35 @@ const getActiveClientAPIs = (clients) =>
     resolve(promises);
   });
 
+// Broadcast DB changes to all active clients
+const broadcastChanges = async (socket) => {
+  try {
+    const clients = await redis.smembers("clients");
+    const promises = await getActiveClientAPIs(clients);
+    const results = await Promise.allSettled(promises);
+    results.forEach((result, i) => {
+      if (result.status == "fulfilled") {
+        const { status, data } = result.value;
+        io.to(clients[i]).emit({
+          action: "routeMatches",
+          status,
+          data,
+        });
+      } else {
+        const { status, data } = result.reason.response;
+        io.to(clients[i]).emit({
+          action: "routeMatches",
+          status,
+          data,
+        });
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    io.to(socket.id).emit({ status: "500", data: err });
+  }
+};
+
 // Handle Clients
 io.on("connection", async (socket) => {
   // routeMatches
@@ -51,32 +80,30 @@ io.on("connection", async (socket) => {
     // Save every client request
     await redis.sadd("clients", socket.id);
     await redis.set(socket.id, JSON.stringify(payload));
-
-    try {
-      const clients = await redis.smembers("clients");
-      const promises = await getActiveClientAPIs(clients);
-      const results = await Promise.allSettled(promises);
-      results.forEach((result, i) => {
-        if (result.value.status == 200) {
-          const { status, data } = result.value;
-          io.to(clients[i]).emit("routeMatchesResponse", { status, data });
-        } else {
-          const { status, data } = result.reason.response;
-          io.to(clients[i]).emit("routeMatchesResponse", { status, data });
-        }
-      });
-    } catch (err) {
-      console.log(err);
-      io.to(socket.id).emit({ status: "500", data: err });
-    }
+    await broadcastChanges(socket);
   });
 
   // Group matching users
   socket.on("groupUsers", (payload) => {
     GroupUsers(payload)
-      .then((res) => console.log(res))
+      .then(async (result) => {
+        const { status, data } = result;
+        io.to(socket.id).emit({
+          action: "groupUsers",
+          status,
+          data,
+        });
+        await broadcastChanges(socket);
+      })
       .catch((err) => {
-        console.log(err);
+        if (err.hasOwnProperty("response")) {
+          const { status, data } = err.response;
+          io.to(socket.id).emit({
+            action: "groupUsers",
+            status,
+            data,
+          });
+        }
       });
   });
 
