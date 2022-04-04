@@ -14,24 +14,53 @@ app.get("/", function (req, res) {
   res.sendFile(path.resolve(__dirname, "./index.html"));
 });
 
+// Flush the clients from DB during server restart
 redis
-  .del("clients")
-  .then((res) => console.log("Restarted Socket Server:", res))
+  .smembers("clients")
+  .then((clients) => {
+    for (const each of clients) {
+      redis.del(each).catch((err) => console.log(err));
+    }
+
+    redis
+      .del("clients")
+      .then((res) => console.log("Restarted Socket Server:", res))
+      .catch((err) => console.log(err));
+  })
   .catch((err) => console.log(err));
 
-io.on("connection", async (socket) => {
-  await redis.sadd("clients", socket.id);
+// Get list of promises for all active clients match results
+const getActiveClientAPIs = (clients) =>
+  new Promise(async (resolve) => {
+    const promises = [];
 
+    for (const each of clients) {
+      const eachPayload = await redis.get(each);
+      const p = MatchUsers(JSON.parse(eachPayload));
+      promises.push(p);
+    }
+
+    resolve(promises);
+  });
+
+// Handle Clients
+io.on("connection", async (socket) => {
+  // routeMatches
   socket.on("routeMatches", async (payload) => {
+    // Save every client request
+    await redis.sadd("clients", socket.id);
+    await redis.set(socket.id, JSON.stringify(payload));
+
     try {
-      const res = await MatchUsers(payload);
-      msg = {
-        action: "routeMatches",
-        res,
-      };
-      io.to(socket.id).emit("routeMatchesResponse", msg);
+      const clients = await redis.smembers("clients");
+      const promises = await getActiveClientAPIs(clients);
+      const results = await Promise.allSettled(promises);
+      results.forEach((result, i) => {
+        io.to(clients[i]).emit("routeMatchesResponse", result.value.data);
+        //   console.log(clients[i], result.value.data);
+      });
     } catch (err) {
-      console.log("Something went wrong!!");
+      console.log(err);
     }
   });
 
