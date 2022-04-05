@@ -8,13 +8,27 @@
    <script>
       const socket = io();
 
-      const payload = {
-            "UserId":1,
-            "TripStartLocation": ["53.344"," -6.2625"],
-            "TripStopLocation": ["53.33263","-6.27554"]
-        }
+//       const payload = {
+//             "UserId":1,
+//             "TripStartLocation": ["53.344"," -6.2625"],
+//             "TripStopLocation": ["53.33263","-6.27554"]
+//         }
 
-      socket.emit('routeMatches', payload)
+//     const payload2 = {
+//     "UserId":"2",
+//     "TripStartLocation": ["53.345"," -6.2624"],
+//     "TripStopLocation": ["53.33263","-6.27554"]
+// }
+
+//       socket.emit('routeMatches', payload)
+
+//       socket.emit('routeMatches', payload2)
+      
+//       const groupthem = {
+//           "UserIds": ["1","2"]
+//         }
+        
+//     socket.emit('groupUsers', groupthem)
 
       socket.on("hello", (arg) => {
         console.log(arg);

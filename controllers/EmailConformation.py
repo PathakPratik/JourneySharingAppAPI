@@ -5,6 +5,7 @@ from Models.Users import Users
 from itsdangerous import SignatureExpired
 from services.UserModule import find_user_by_email, update_user_in_db
 import datetime
+from constants import REDIS_JOURNEY_LIST
 
 app_confirm_email = Blueprint('confirm_email',__name__)
 
@@ -36,10 +37,15 @@ def confirm_email(token):
 def helloWorld():
 
     response = {}
+    
+    # Get current journey list
+    from app import redisClient
+    curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
 
     try:
         response['message'] = "Hello World"
         response['status'] = 200
+        print(curr_list)
         return jsonify(response)
 
     except:

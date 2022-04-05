@@ -27,12 +27,15 @@ def matchingAlgorithm(curr_list, point):
     
     # Get neighbour points
     neighbors = findNeighbours(start_arr, dest_arr, point)
-
+    
     # Save result
     res = []
     for i in neighbors:
         each = json.loads(curr_list[i])
-        if 'UserId' in each and each['UserId'] != point['UserId']:
+        if 'GroupId' in each:
+            each['GroupId'] = abs(each['GroupId'])
+            res.append(each)
+        elif 'UserId' in each and each['UserId'] != point['UserId']:
             res.append(each)
     
     return res
