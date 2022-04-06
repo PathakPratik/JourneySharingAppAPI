@@ -75,6 +75,9 @@ const broadcastChanges = async (socket) => {
 
 // Handle Clients
 io.on("connection", async (socket) => {
+  // Connection message
+  io.to(socket.id).emit({ action: "connected" });
+
   // routeMatches
   socket.on("routeMatches", async (payload) => {
     // Save every client request

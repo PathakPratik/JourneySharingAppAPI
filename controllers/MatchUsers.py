@@ -11,7 +11,7 @@ class ScheduleJourneySchema(Schema):
     UserId = fields.Integer(required=True)
     TripStartLocation = fields.List(fields.String(), required=True)
     TripStopLocation = fields.List(fields.String(), required=True)
-    ScheduleTime = fields.Float(required=True)
+    ScheduleTime = fields.String(required=True)
 
 # Schedule Journey API
 @app_match_users.route("/schedule-journey", methods=['POST'])
@@ -25,7 +25,7 @@ def ScheduleJourney():
     except ValidationError as err:
         return jsonify(err.messages), 400
 
-    # Add new journey to the list with current timestamp as score
+    # Add new journey to the list with schedule timestamp
     from app import redisClient
     try:
         createJourney(result, redisClient, result['UserId'])

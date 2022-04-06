@@ -43,9 +43,8 @@ def helloWorld():
     curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
 
     try:
-        response['message'] = "Hello World"
+        response['message'] = ''.join(str(e) for e in curr_list)
         response['status'] = 200
-        print(curr_list)
         return jsonify(response)
 
     except:
