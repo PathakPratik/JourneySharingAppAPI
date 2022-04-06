@@ -1,8 +1,5 @@
-import re
 import bcrypt
-from db import db
-from flask import Flask,request,jsonify,Blueprint
-from flask_sqlalchemy import SQLAlchemy
+from flask import request,jsonify,Blueprint
 from Models.Users import Users
 import re
 from sqlalchemy.exc import IntegrityError
@@ -35,6 +32,10 @@ def validate_email(email):
         return "Invalid email address"
     else:   
         return ""
+from services.UserModule import validate_register_form, validate_email, validate_password , \
+                                password_match_confrimation, add_user_to_db, send_confirmation_account_email
+from setup import db
+
 
 app_register = Blueprint('app_register',__name__)
 
@@ -44,60 +45,51 @@ def register():
     response = {}
 
     try:
+
         username_ = request.form['username']
         password_ = request.form['password']
         gender_ = request.form['gender']
         email_ = request.form['email']
         confirmpassword_ = request.form['confirmpassword']
 
-        #username_ = request.json.get('username', None)
-
-        if not username_:
-            response['message'] = 'Missing username'
-            response['status'] = 400
-            return jsonify(response)
-
-        if not password_:
-            response['message'] = 'Missing password'
-            response['status'] = 400
-            return jsonify(response)
-
-        elif validate_password(password_) != "":
-            response['message'] = validate_password(password_)
-            response['status'] = 400
-            return jsonify(response)
-
-        elif password_ != confirmpassword_:
-            response['message'] = 'Password confirmation incorrect'
+        message, form_is_correct = validate_register_form(username_, password_, gender_, email_, confirmpassword_)
+        if not form_is_correct:
+            response['message'] = message
             response['status'] = 400
             return jsonify(response)
         
-        if not email_:
-            response['message'] = 'Missing email'
+        message, password_is_correct = validate_password(password_)
+        if not password_is_correct:
+            response['message'] = message
             response['status'] = 400
             return jsonify(response)
 
-        elif validate_email(email_) != "":
-            response['message'] = validate_email(email_)
+        message, email_is_correct = validate_email(email_)
+        if not email_is_correct:
+            response['message'] = message
+            response['status'] = 400
+            return jsonify(response)
+        
+        message, password_confirm_matches = password_match_confrimation(password_, confirmpassword_)
+        if not password_confirm_matches:
+            response['message'] = message
             response['status'] = 400
             return jsonify(response)
     
         hashed_password = bcrypt.hashpw(password_.encode('utf-8'), bcrypt.gensalt())
+        registered_user = Users(username_, email_, gender_, hashed_password, admin=False, confirmed=False, confirmed_on=None)
 
-        registered_user = Users(username_, email_, gender_, hashed_password)
-        db.session.add(registered_user)
-        db.session.commit()
-        response["message"] = 'User registered successfully'
-        response["status"] = 200
+        message, status = add_user_to_db(registered_user, db)
+        response['message'] = message
+        response['status'] = status
+        if status == 400:
+            return jsonify(response)
+
+        message, status = send_confirmation_account_email(email_)
+
         return jsonify(response)
+
         
-    except IntegrityError:
-        #the rollback func reverts the changes made to the db ( so if an error happens after we commited changes they will be reverted )
-        db.session.rollback()
-        response["message"] = 'User already exists'
-        response["status"] = 409
-        return jsonify(response)
-
     except AttributeError:
         response["message"] = 'Bad request - Provide an username and Password in JSON format in the request body'
         response["status"] = 400

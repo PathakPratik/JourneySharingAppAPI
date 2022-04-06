@@ -1,16 +1,15 @@
 version: '3'
 services:
   api:
-    container_name: "userapi"
     image: journey_sharing_app:v1
-    # build: .
     entrypoint: python app.py
     ports:
-        - '5000:5000'
+      - '5000:5000'
     volumes:
       - .:/app
     depends_on:
       - db
+      - redis
     restart: on-failure:15
     environment:
       - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
@@ -24,21 +23,31 @@ services:
     environment:
       - MYSQL_DATABASE=${MYSQL_DATABASE}
       - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    #volumes:
-    #  - mysqlvol:/var/lib/mysql
+    volumes:
+      - mysqlvol:/var/lib/mysql
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
   redis:
     image: redis
     ports:
       - "6379:6379"
- # reoutehandler:
+  websocketserver:
+    image: web_socket_server:v1
+    entrypoint: npm start
+    ports:
+      - '3000:3000'
+    volumes:
+          - ./websocketserver:/app
+    depends_on:
+      - redis
+      - api
+  # reoutehandler:
   #  image: nginix_route_handler:1.0.0
   #  ports:
-   #   - 80:80
-
+  #   - 80:80
 
 volumes:
-  mysqlvol:
-#     external:true
-
-
-
+  mysqlvol: null

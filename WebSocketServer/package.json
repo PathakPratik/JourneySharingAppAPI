@@ -1,0 +1,19 @@
+{
+  "name": "websocketserver",
+  "version": "1.0.0",
+  "description": "This is web socket server written in NodeJs to show real time match results",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --legacy-watch index.js"
+  },
+  "author": "Pratik Pathak",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.26.1",
+    "express": "^4.17.3",
+    "ioredis": "^5.0.1",
+    "nodemon": "^2.0.15",
+    "socket.io": "^4.4.1"
+  }
+}

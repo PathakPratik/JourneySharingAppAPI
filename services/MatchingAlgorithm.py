@@ -7,8 +7,14 @@ from scipy.spatial import cKDTree
 from scipy import inf
 
 # Add new journey to the list with current timestamp as score
-def createJourney(result, redisClient, score = time.time()):
-    redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): score })
+def createJourney(result, redisClient, score):
+
+    #Check if already exists
+    entry = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, score, score)
+    
+    if len(entry) == 0:
+        result["time"] = result['ScheduleTime'] if 'ScheduleTime' in result else time.time()
+        redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): score })
 
 # Matching Algorithm
 def matchingAlgorithm(curr_list, point):
@@ -21,11 +27,16 @@ def matchingAlgorithm(curr_list, point):
     
     # Get neighbour points
     neighbors = findNeighbours(start_arr, dest_arr, point)
-
+    
     # Save result
     res = []
     for i in neighbors:
-        res.append(json.loads(curr_list[i]))
+        each = json.loads(curr_list[i])
+        if 'GroupId' in each:
+            each['GroupId'] = abs(each['GroupId'])
+            res.append(each)
+        elif 'UserId' in each and each['UserId'] != point['UserId']:
+            res.append(each)
     
     return res
 

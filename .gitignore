@@ -1,3 +1,5 @@
 env/
 __pycache__/
 .env
+users.db
+**/node_modules

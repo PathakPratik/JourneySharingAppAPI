@@ -4,6 +4,7 @@ from Models.Users import Users
 from constants import REDIS_JOURNEY_LIST
 from controllers.Register import UserSchema
 from services.MatchingAlgorithm import createJourney, matchingAlgorithm
+import json
 
 app_match_users = Blueprint('app_match_users', __name__)
 
@@ -33,9 +34,7 @@ def ScheduleJourney():
     # Add new journey to the list with current timestamp as score
     from app import redisClient
     try:
-        score = result['ScheduleTime']
-        del result['ScheduleTime']
-        createJourney(result, redisClient, score)
+        createJourney(result, redisClient, result['UserId'])
     except redisClient.RedisError as err:
         return jsonify(err), 500
 
@@ -88,7 +87,7 @@ def MatchUsers():
 
     # Add new journey to the list
     try:
-        createJourney(result, redisClient)
+        createJourney(result, redisClient, result['UserId'])
     except redisClient.RedisError as err:
         return jsonify(err), 500
 
@@ -97,12 +96,12 @@ def MatchUsers():
         return jsonify([]), 200
 
     # Get matches result
-    # res = matchingAlgorithm(curr_list, result)
-    res = [{
-        "UserId": "5",
-        "TripStartLocation": ["53.257", "-6.126"],
-        "TripStopLocation": ["53.2064", "-6.1113"]
-    }]
+    res = matchingAlgorithm(curr_list, result)
+    # res = [{
+    #     "UserId": "5",
+    #     "TripStartLocation": ["53.257", "-6.126"],
+    #     "TripStopLocation": ["53.2064", "-6.1113"]
+    # }]
 
     trueRes = []
     for user in res:
@@ -170,3 +169,89 @@ def CreateNMatchingJourneys():
 
     final = ScheduleJourneySchema(many=True).dump(addedJourneys)
     return jsonify(final), 200
+    return jsonify(res), 200
+
+    
+# Payload Schema for Group Users API
+class GroupUser(Schema):
+    GroupId = fields.Integer(required=True)
+    UserId = fields.Integer(required=True)
+class GroupUsersSchema(Schema):
+    GroupUser = fields.Nested(GroupUser)
+    UserIds = fields.List(fields.Integer(required=True))
+
+# Group Users API
+@app_match_users.route("/group-users", methods=['POST'])
+def GroupUsers():
+    
+    # Unmarshal Payload
+    request_data = request.json
+    schema = GroupUsersSchema()
+    try:
+        result = schema.load(request_data)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    from app import redisClient
+
+    #If Group already exists, add users
+    if 'GroupUser' in result:
+        GroupId = result['GroupUser']['GroupId']
+        UserId = result['GroupUser']['UserId']
+        # Get the group and the user
+        try:
+            Group = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, -GroupId, -GroupId)
+            User = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, UserId, UserId)
+
+            if not Group or not User:
+                return jsonify("Group or User does not exist!"), 400
+            else:
+                    Group = json.loads(Group[0])
+                    User = json.loads(User[0])
+
+            # Add user to group
+            Group['Users'].append(User)
+
+            # Update new group
+            redisClient.zremrangebyscore(REDIS_JOURNEY_LIST, -GroupId, -GroupId)
+            createJourney(Group, redisClient, -GroupId)
+            redisClient.zremrangebyscore(REDIS_JOURNEY_LIST, UserId, UserId)
+
+            return jsonify({ "GroupId": abs(GroupId) }), 200
+        except:
+            return jsonify("Something went wrong!!"), 500
+    #Get Users to group journeys
+    elif 'UserIds' in result:
+
+        if len(result['UserIds']) != 2:
+             return jsonify('Incorrect UserIds Argument'), 400
+        
+        try:
+            User1Score = result['UserIds'][0]
+            User2Score = result['UserIds'][1]
+            
+            User1 = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, User1Score, User1Score)
+            User2 = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, User2Score, User2Score)
+            
+            if not User1 or not User2:
+                return jsonify("No valid users!"), 400
+            else:
+                User1 = json.loads(User1[0])
+                User2 = json.loads(User2[0])
+
+            # Make a Group
+            Group = {
+                'GroupId': -User1['UserId'],
+                'TripStartLocation': User1['TripStartLocation'],
+                'TripStopLocation': User1['TripStopLocation'],
+                'Users': [User1, User2]
+            }
+            createJourney(Group, redisClient, Group['GroupId'])
+
+            # Remove users added to group
+            redisClient.zremrangebyscore(REDIS_JOURNEY_LIST, User1Score, User1Score)
+            redisClient.zremrangebyscore(REDIS_JOURNEY_LIST, User2Score, User2Score)
+
+            return jsonify({ "GroupId": abs(Group['GroupId']) }), 200
+        except:
+            return jsonify("Something went wrong!!"), 500
