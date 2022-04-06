@@ -17,11 +17,11 @@ class Config:
     MAIL_SERVER='smtp.gmail.com'
     MAIL_PORT=465
     #To use pytest, uncomment line 21 and comment out line 20
-    # MAIL_USERNAME = str(ENV['MAIL_USERNAME'])
-    MAIL_USERNAME = str(environ.get('MAIL_USERNAME'))
+    MAIL_USERNAME = str(ENV['MAIL_USERNAME'])
+    # MAIL_USERNAME = str(environ.get('MAIL_USERNAME'))
 
     #To use pytest, uncomment line 25 and comment out line 24
-    # MAIL_PASSWORD = str(ENV['MAIL_PASSWORD'])
-    MAIL_PASSWORD = str(environ.get('MAIL_PASSWORD'))
+    MAIL_PASSWORD = str(ENV['MAIL_PASSWORD'])
+    # MAIL_PASSWORD = str(environ.get('MAIL_PASSWORD'))
     MAIL_USE_TLS = False
     MAIL_USE_SSL = True
