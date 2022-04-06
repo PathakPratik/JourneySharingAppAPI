@@ -124,11 +124,11 @@ def add_journey_to_db(scheduled_journey, db):
     try:
         db.session.add(scheduled_journey)
         db.session.commit()
-        return 'Journey added successfully', True
+        return 'Journey added successfully', 200
     
     except IntegrityError:
         db.session.rollback()
-        return 'Journey already exists', False
+        return 'Journey already exists', 400
 
 def user_exist_in_journey(journey, user_id):
     if journey.members.find(str(user_id)) != -1:

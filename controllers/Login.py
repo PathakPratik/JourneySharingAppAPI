@@ -40,7 +40,7 @@ def login():
         return jsonify(response)
 
     except AttributeError:
-        response["message"] = 'Bad request - Provide an username and Password in JSON format in the request body'
+        response["message"] = 'Bad request - User could not log in'
         response["status"] = 400
         return jsonify(response)
 

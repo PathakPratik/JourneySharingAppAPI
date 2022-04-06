@@ -64,7 +64,7 @@ def create_journey():
         return jsonify(response)
 
     except AttributeError:
-        response["message"] = 'Bad request - Provide the journey information in a correct format'
+        response["message"] = 'Bad request - Could not add a new journey'
         response["status"] = 400
         return jsonify(response)
 

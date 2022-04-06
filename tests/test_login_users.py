@@ -46,6 +46,11 @@ class TestUserLogin:
         'email' : 'journeysharingappgroup12@gmail.com'
     }
 
+    user_standard_register_2 = {
+        'password' : 'Secretpassword5',
+        'email' : 'journeysharingappgroup12@gmail.com'
+    }
+
     user_standard_register_ = {
          'email' : 'journeysharingappgroup1@gmail.com',
         'password' : 'Secretpassword67'
@@ -76,10 +81,21 @@ class TestUserLogin:
 
         # Check for correct validation error
         res_json = response.get_json()
-        expected_res = {'message': 'User registered successfully', 'status': 200}
+        expected_res = {'message': 'User already exists', 'status': 400}
         assert res_json == expected_res
     
-        
+    def test_registered_user_login_2(self):
+        tester = app.test_client(self)
+        response = tester.post('/register', content_type='multipart/form-data',data=self.user_standard_register)
+        # Check for correct validation error
+        res_json = response.get_json()
+        expected_res = {'message': 'User registered successfully', 'status': 200}
+        if res_json == expected_res:
+            response = tester.post('/login', content_type='multipart/form-data',data=self.user_standard_register_2)
+            res_json = response.get_json()
+            expected_res = {'message': 'User logged in successfully', 'status': 200}
+            assert res_json == expected_res
+
     def test_user_unsuccessful_login(self):
         tester = app.test_client(self)
         response = tester.post('/login', content_type='multipart/form-data',data=self.user_standard_register_)
