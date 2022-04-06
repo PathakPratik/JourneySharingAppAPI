@@ -66,6 +66,7 @@ class MatchUsersSchema(Schema):
     UserId = fields.Integer(required=True)
     TripStartLocation = fields.List(fields.String(), required=True)
     TripStopLocation = fields.List(fields.String(), required=True)
+    time = fields.Float(required=False)
 
 # Match Users API
 
@@ -169,7 +170,6 @@ def CreateNMatchingJourneys():
 
     final = ScheduleJourneySchema(many=True).dump(addedJourneys)
     return jsonify(final), 200
-    return jsonify(res), 200
 
     
 # Payload Schema for Group Users API

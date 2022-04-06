@@ -184,7 +184,7 @@ class TestMatchUsers:
 
         # Check for correct status code
         statuscode = response.status_code
-        assert statuscode == 200
+        assert statuscode == 200 
 
         # Check for correct response
         res_json = response.get_json()
