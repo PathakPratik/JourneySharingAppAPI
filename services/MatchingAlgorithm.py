@@ -1,6 +1,8 @@
+from datetime import datetime, timedelta
 from constants import REDIS_JOURNEY_LIST
 import time
 import json
+from dateutil import parser
 
 import numpy as np
 from scipy.spatial import cKDTree
@@ -22,9 +24,17 @@ def matchingAlgorithm(curr_list, point):
     
     for each in curr_list:
         journey = json.loads(each)
+        
+        if filterFutureJourney(journey):
+            continue
+
         start_arr.append(journey.get("TripStartLocation"))
         dest_arr.append(journey.get("TripStopLocation"))
     
+    # If no journeys pass filters return empty result
+    if not start_arr or not dest_arr:
+        return []
+
     # Get neighbour points
     neighbors = findNeighbours(start_arr, dest_arr, point)
     
@@ -39,6 +49,20 @@ def matchingAlgorithm(curr_list, point):
             res.append(each)
     
     return res
+
+# Remove journeys scheduled for future
+def filterFutureJourney(journey):
+    if type(journey['time']) == str:
+        diff = parser.parse(journey['time']) - datetime.today()
+        if diff > timedelta(minutes=3):
+            return True
+        if diff < timedelta(0):
+            return True
+    else:
+        diff = journey['time'] - time.time()
+
+        if diff < -180:
+            return True
 
 # Find neighbouring points from start and destinations
 def findNeighbours(start_arr, dest_arr, point):
