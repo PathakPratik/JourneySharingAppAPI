@@ -12,6 +12,9 @@ class ScheduleJourneySchema(Schema):
     TripStartLocation = fields.List(fields.String(), required=True)
     TripStopLocation = fields.List(fields.String(), required=True)
     ScheduleTime = fields.Float(required=True)
+    GenderPrefrence = fields.String(required=False)
+    RequiredRating = fields.String(required=False)
+    ModeOfTransport = fields.String(required=False)
 
 # Schedule Journey API
 @app_match_users.route("/schedule-journey", methods=['POST'])
