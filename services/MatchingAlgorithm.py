@@ -12,7 +12,7 @@ def createJourney(result, redisClient, score = time.time()):
 
 def filterJourney(journey, point):
     if (journey.get("GenderPrefrence") == None or journey.get("GenderPrefrence") == point.get("GenderPrefrence")):
-        if(journey.get("RequiredRating") == None or int(journey.get("RequiredRating") >= int(point.get("RequiredRating"))):
+        if(journey.get("RequiredRating") == None or int(journey.get("RequiredRating") >= int(point.get("RequiredRating")))):
             if(journey.get("ModeOfTransport") == None or journey.get("ModeOfTransport") == point.get("ModeOfTransport")):
                 return True
     return False
