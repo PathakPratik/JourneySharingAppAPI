@@ -1,7 +1,7 @@
 from flask import request,jsonify,Blueprint
 from services.JourenyUtility import validate_search_jorney_form, find_matching_journey, make_json_object
 from json import dumps
-from Decorator import login_required
+from services.Decorator import login_required
 
 
 

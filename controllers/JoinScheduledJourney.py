@@ -1,7 +1,7 @@
 from flask import request,jsonify,Blueprint, session
 from services.JourenyUtility import find_journey_by_id, update_journey_in_db, user_exist_in_journey, journey_has_quota
 from json import dumps
-from Decorator import login_required
+from services.Decorator import login_required
 from setup import db
 
 app_join_scheduled_journey = Blueprint('app_join_scheduled_journey',__name__)

@@ -2,7 +2,7 @@ from flask import request,jsonify,Blueprint, session
 from Models.ScheduledJourney import ScheduledJourney
 from services.JourenyUtility import validate_create_jorney_form, add_journey_to_db, check_optional_fields
 from setup import db
-from Decorator import login_required
+from services.Decorator import login_required
 
 
 app_create_scheduled_journey = Blueprint('app_create_scheduled_journey',__name__)

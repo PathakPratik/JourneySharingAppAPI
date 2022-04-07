@@ -20,6 +20,16 @@ def validate_login_form(password, email):
 
     return 'Form is correct', True
 
+def validate_rating_form(rating, user_id):
+
+    if not user_id:
+        return 'Missing rating', False
+    
+    if not rating:
+        return 'Missing user id', False
+
+    return 'Form is correct', True
+    
 def find_user_by_email(email):
 
     user = Users.query.filter_by(email=email).first()

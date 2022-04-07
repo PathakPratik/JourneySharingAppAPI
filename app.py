@@ -54,6 +54,9 @@ app.register_blueprint(app_join_scheduled_journey)
 from controllers.GetScheduledJourney import app_get_scheduled_journey
 app.register_blueprint(app_get_scheduled_journey)
 
+# Add Rating Confirmation Controller
+from controllers.Ratings import app_ratings
+app.register_blueprint(app_ratings)
 
 if __name__ == "__main__":
     with app.app_context():

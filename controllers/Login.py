@@ -36,7 +36,6 @@ def login():
 
         response["message"] = 'User logged in successfully'
         response["status"] = 200
- 
         return jsonify(response)
 
     except AttributeError:

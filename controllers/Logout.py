@@ -1,6 +1,6 @@
 from flask import jsonify,Blueprint
 from flask import session
-from Decorator import login_required
+from services.Decorator import login_required
 
 app_logout = Blueprint('app_logout',__name__)
 
