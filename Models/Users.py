@@ -15,7 +15,7 @@ class Users(db.Model):
     admin = db.Column(db.Boolean, nullable=False, default=False)
     confirmed = db.Column(db.Boolean, nullable=False, default=False)
     confirmed_on = db.Column(db.DateTime, nullable=True)
-    current_rating = db.Column(db.Integer, nullable = True)
+    current_rating = db.Column(db.Float, nullable = True)
     rating_count = db.Column(db.Integer, nullable = True)
 
 
