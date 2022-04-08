@@ -1,10 +1,9 @@
 import bcrypt
 from flask import request,jsonify,Blueprint
 from Models.Users import Users
-from services.UserModule import validate_register_form, validate_email, validate_password , \
+from services.UserModule import validate_register_form, validate_email, validate_password, \
                                 password_match_confrimation, add_user_to_db, send_confirmation_account_email
 from setup import db
-
 
 app_register = Blueprint('app_register',__name__)
 
@@ -46,7 +45,9 @@ def register():
             return jsonify(response)
     
         hashed_password = bcrypt.hashpw(password_.encode('utf-8'), bcrypt.gensalt())
-        registered_user = Users(username_, email_, gender_, hashed_password, admin=False, confirmed=False, confirmed_on=None)
+        registered_user = Users(username_, email_, gender_, hashed_password, \
+                                admin=False, confirmed=False, confirmed_on=None,\
+                                current_rating=0, rating_count=0)
 
         message, status = add_user_to_db(registered_user, db)
         response['message'] = message
@@ -58,12 +59,7 @@ def register():
 
         return jsonify(response)
 
-        
     except AttributeError:
         response["message"] = 'Bad request - Provide an username and Password in JSON format in the request body'
         response["status"] = 400
         return jsonify(response)
-
-
-
-
