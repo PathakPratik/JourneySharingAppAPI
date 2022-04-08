@@ -1,9 +1,12 @@
 from datetime import datetime, timedelta
+from difflib import Match
 from constants import REDIS_JOURNEY_LIST
 import time
 import json
 from dateutil import parser
-
+from controllers.Register import UserSchema
+from Models.ExtendedSchemas import MatchUsersSchema
+from Models.Users import Users
 import numpy as np
 from scipy.spatial import cKDTree
 from scipy import inf
@@ -95,3 +98,16 @@ def handleMultipleNeighbours(indexes, distances):
             break
         points.add(i)
     return points
+
+def parseUser(resultList, instance_of_UserSchema):
+    # For each user that we matches the in terms of distance
+    # get their MatchUsersSchema
+    currUser = MatchUsersSchema().load(instance_of_UserSchema)
+    # Extract the user id from the schema
+    currId = currUser["UserId"]
+    # cross reference userid with the db and append the users
+    # object to the trueRes list
+    currRes = UserSchema().dump(Users.query.filter_by(id=currId).first())
+    currRes["TripStartLocation"] = currUser["TripStartLocation"]
+    currRes["TripStopLocation"] = currUser["TripStopLocation"]
+    resultList.append(currRes)

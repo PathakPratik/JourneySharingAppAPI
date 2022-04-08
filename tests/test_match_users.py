@@ -158,7 +158,8 @@ class TestMatchUsers:
         for maps in res_json:
             currUserID = maps["id"]
             for key, value in maps.items():
-                assert maps[key] == self.users_map[currUserID][key]
+                if key in self.users_map[currUserID]:
+                    assert maps[key] == self.users_map[currUserID][key]
     # Test for multiple matches case
 
     @patch("app.redisClient", fakeredis.FakeStrictRedis())
@@ -195,7 +196,8 @@ class TestMatchUsers:
         for maps in res_json:
             currUserID = maps["id"]
             for key, value in maps.items():
-                assert maps[key] == self.users_map[currUserID][key]
+                if key in self.users_map[currUserID]:
+                    assert maps[key] == self.users_map[currUserID][key]
 
     # Test for non-matching journey case
     @patch("app.redisClient", fakeredis.FakeStrictRedis())

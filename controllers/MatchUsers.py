@@ -1,9 +1,8 @@
 from flask import Blueprint, request, jsonify
 from marshmallow import Schema, fields, ValidationError
-from Models.Users import Users
 from constants import REDIS_JOURNEY_LIST
-from controllers.Register import UserSchema
-from services.MatchingAlgorithm import createJourney, matchingAlgorithm
+from Models.ExtendedSchemas import MatchUsersSchema
+from services.MatchingAlgorithm import createJourney, matchingAlgorithm, parseUser
 import json
 
 app_match_users = Blueprint('app_match_users', __name__)
@@ -62,11 +61,6 @@ def DeleteJourneys():
 # Payload Schema for Match Users API
 
 
-class MatchUsersSchema(Schema):
-    UserId = fields.Integer(required=True)
-    TripStartLocation = fields.List(fields.String(), required=True)
-    TripStopLocation = fields.List(fields.String(), required=True)
-    time = fields.Float(required=False)
 
 # Match Users API
 
@@ -108,23 +102,16 @@ def MatchUsers():
     # return res 
 
     trueRes = []
-    for user in res:
-        # For each user that we matches the in terms of distance
-        # get their MatchUsersSchema
-        currUser = schema.load(user)
-        # Extract the user id from the schema
-        currId = currUser["UserId"]
-        # cross reference userid with the db and append the users
-        # object to the trueRes list
-        currRes = UserSchema().dump(Users.query.filter_by(id=currId).first())
-        currRes["TripStartLocation"] = currUser["TripStartLocation"]
-        currRes["TripStopLocation"] = currUser["TripStopLocation"]
-        trueRes.append(currRes)
+    for instance in res:
+        #logic if given a user instead of a group
+        print(instance, flush=True)
+        if "UserId" in instance:
+            parseUser(trueRes, instance)
+        else: 
+            for user in instance["Users"]:
+                parseUser(trueRes, user)
 
-    # UserDetails = list(UserSchema(many=True).dump(trueRes))
     return jsonify(trueRes), 200
-    # Use the UsersSchema to dump and jsonify the user details
-    # return jsonify(UserSchema(many=True).dump(trueRes)), 200
 
 
 @app_match_users.route("/create-n-matching-journeys", methods=['POST'])
