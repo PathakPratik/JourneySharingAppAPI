@@ -98,11 +98,14 @@ def MatchUsers():
 
     # Get matches result
     res = matchingAlgorithm(curr_list, result)
+    print(res, flush=True)
     # res = [{
     #     "UserId": "5",
     #     "TripStartLocation": ["53.257", "-6.126"],
     #     "TripStopLocation": ["53.2064", "-6.1113"]
     # }]
+
+    # return res 
 
     trueRes = []
     for user in res:
@@ -113,10 +116,15 @@ def MatchUsers():
         currId = currUser["UserId"]
         # cross reference userid with the db and append the users
         # object to the trueRes list
-        trueRes.append(Users.query.filter_by(id=currId).first())
+        currRes = UserSchema().dump(Users.query.filter_by(id=currId).first())
+        currRes["TripStartLocation"] = currUser["TripStartLocation"]
+        currRes["TripStopLocation"] = currUser["TripStopLocation"]
+        trueRes.append(currRes)
 
+    # UserDetails = list(UserSchema(many=True).dump(trueRes))
+    return jsonify(trueRes), 200
     # Use the UsersSchema to dump and jsonify the user details
-    return jsonify(UserSchema(many=True).dump(trueRes)), 200
+    # return jsonify(UserSchema(many=True).dump(trueRes)), 200
 
 
 @app_match_users.route("/create-n-matching-journeys", methods=['POST'])
