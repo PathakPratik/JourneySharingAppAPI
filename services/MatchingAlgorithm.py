@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from difflib import Match
+from tokenize import group
 from constants import REDIS_JOURNEY_LIST
 import time
 import json
@@ -99,7 +100,7 @@ def handleMultipleNeighbours(indexes, distances):
         points.add(i)
     return points
 
-def parseUser(resultList, instance_of_UserSchema):
+def parseUser(resultList, instance_of_UserSchema, groupID=None):
     # For each user that we matches the in terms of distance
     # get their MatchUsersSchema
     currUser = MatchUsersSchema().load(instance_of_UserSchema)
@@ -110,4 +111,6 @@ def parseUser(resultList, instance_of_UserSchema):
     currRes = UserSchema().dump(Users.query.filter_by(id=currId).first())
     currRes["TripStartLocation"] = currUser["TripStartLocation"]
     currRes["TripStopLocation"] = currUser["TripStopLocation"]
+    if groupID:
+        currRes["GroupId"] = groupID
     resultList.append(currRes)

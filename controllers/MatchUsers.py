@@ -109,7 +109,8 @@ def MatchUsers():
             parseUser(trueRes, instance)
         else: 
             for user in instance["Users"]:
-                parseUser(trueRes, user)
+                currGroupID = instance["GroupId"]
+                parseUser(trueRes, user, currGroupID)
 
     return jsonify(trueRes), 200
 
