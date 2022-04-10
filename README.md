@@ -22,7 +22,7 @@ The app will then start, be patient, it will fail in the first 5 attempts (maybe
 
 # How to run test cases in docker
 
-To run the test cases, you first need to run the project using the guideline above. Thenn, go to setup.py and change the test_mode to True
+To run the test cases, you first need to run the project using the guideline above. Then, go to setup.py and change the test_mode to True
 
 `test_mode = True`
 
