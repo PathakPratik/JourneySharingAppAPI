@@ -57,6 +57,8 @@ If you want to use the GUI for coverage, run:
 
 This will create a folder under tests directory called htmlcov, open the index.html file in your browser to see the coverage of the test cases line by line within the project.
 
+Make sure that you will change the test_mode in the setup.py to False after finishing the testcases.
+
 
 
 
