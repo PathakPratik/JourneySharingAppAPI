@@ -17,8 +17,8 @@ def update_rating():
 
     message, form_is_ok = validate_rating_form(new_ratings, user_id)
     if form_is_ok == False:
-        response['message']=message
-        response['status']= 400
+        response['message'] = message
+        response['status'] = 400
         return jsonify(response)
 
     message, user = find_user_by_id(user_id)

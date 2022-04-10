@@ -18,7 +18,11 @@ def confirm_email(token):
         email = url_safe_timed_serializer.loads(token, salt='email-confirm', max_age=225)
 
         message, user = find_user_by_email(email)
-        
+        if user == None:
+            response['message'] = message
+            response['status'] = 400
+            return jsonify(response)
+
         user.confirmed = True
         user.confirmed_on = datetime.datetime.now()
 

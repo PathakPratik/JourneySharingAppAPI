@@ -1,3 +1,4 @@
+from encodings import utf_8
 from app import app
 from setup import db
 
@@ -44,6 +45,32 @@ class TestUserLogin:
         'confirmpassword' : 'Secretpassword5',
         'gender' : 'male',
         'email' : 'journeysharingappgroup12@gmail.com'
+    }
+
+    user_2_standard_register = {
+        'username' : 'test_user_new',
+        'password' : 'Secretpassword5',
+        'confirmpassword' : 'Secretpassword5',
+        'gender' : 'male',
+        'email' : 'journeysharingappgroup998@gmail.com'
+    }
+
+    user_2_standard_login = {
+        'password' : 'Secretpassword598',
+        'email' : 'journeysharingappgroup998@gmail.com'
+    }
+
+    user_3_standard_register = {
+        'username' : 'test_user_new_2',
+        'password' : {'jslkdfjslk989O',True,'k;l'},
+        'confirmpassword' : {'jslkdfjslk989O',True,'k;l'},
+        'gender' : 'male',
+        'email' : 'journeysharingappgroup9981@gmail.com'
+    }
+
+    user_3_standard_login = {
+        'password' : {'jslkdfjslk989O',True,'k;l'},
+        'email' : 'journeysharingappgroup9981@gmail.com'
     }
 
     user_standard_register_2 = {
@@ -95,7 +122,21 @@ class TestUserLogin:
             res_json = response.get_json()
             expected_res = {'message': 'User logged in successfully', 'status': 200}
             assert res_json == expected_res
-
+    
+    def test_registered_user_login_wrong_password(self):
+        tester = app.test_client(self)
+        response = tester.post('/register', content_type='multipart/form-data',data=self.user_2_standard_register)
+        # Check for correct validation error
+        res_json = response.get_json()
+        expected_res = {'message': 'User registered successfully', 'status': 200}
+        if res_json == expected_res:
+            response = tester.post('/login', content_type='multipart/form-data',data=self.user_2_standard_login)
+            res_json = response.get_json()
+            expected_res = {'message': 'Wrong password', 'status': 400}
+            assert res_json == expected_res
+        else:
+            assert res_json == expected_res
+    
     def test_user_unsuccessful_login(self):
         tester = app.test_client(self)
         response = tester.post('/login', content_type='multipart/form-data',data=self.user_standard_register_)
