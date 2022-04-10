@@ -13,9 +13,9 @@ def createJourney(result, redisClient, score = time.time()):
     redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): score })
 
 def filterJourney(journey, point):
-    if (journey.get("GenderPrefrence") == '' or journey.get("GenderPrefrence") == point.get("GenderPrefrence")):
-        if(journey.get("RequiredRating") == '' or int(journey.get("RequiredRating") >= int(point.get("RequiredRating")))):
-            if(journey.get("ModeOfTransport") == '' or journey.get("ModeOfTransport") == point.get("ModeOfTransport")):
+    if (journey.get("GenderPrefrence") == None or journey.get("GenderPrefrence") == point.get("GenderPrefrence")):
+        if(journey.get("RequiredRating") == None or int(journey.get("RequiredRating") >= int(point.get("RequiredRating")))):
+            if(journey.get("ModeOfTransport") == None or journey.get("ModeOfTransport") == point.get("ModeOfTransport")):
                 return True
     return False
 
@@ -25,9 +25,15 @@ def matchingAlgorithm(curr_list, point):
     
     for each in curr_list:
         journey = json.loads(each)
+
+        if filterFutureJourney(journey):
+            continue
+
         if (filterJourney(journey, point)):
             start_arr.append(journey.get("TripStartLocation"))
             dest_arr.append(journey.get("TripStopLocation"))
+
+
     
     # If no journeys pass filters return empty result
     if not start_arr or not dest_arr:
