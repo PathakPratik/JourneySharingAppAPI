@@ -25,6 +25,8 @@ def matchingAlgorithm(curr_list, point):
     
     for each in curr_list:
         journey = json.loads(each)
+        if filterFutureJourney(journey):
+            continue
         if (filterJourney(journey, point)):
             start_arr.append(journey.get("TripStartLocation"))
             dest_arr.append(journey.get("TripStopLocation"))
