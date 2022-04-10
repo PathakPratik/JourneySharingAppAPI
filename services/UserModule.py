@@ -51,8 +51,8 @@ def find_user_by_id(id):
 def check_password(user, password):
 
     #TO run the test case uncomment below and comment out the one below the commented line
-    if bcrypt.checkpw(password.encode('utf-8'), user.password):
-    #if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+    #if bcrypt.checkpw(password.encode('utf-8'), user.password):
+    if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
         return 'User logged in successfully', True
     return 'Wrong password', False
 def validate_password(password):

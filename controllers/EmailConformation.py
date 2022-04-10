@@ -1,6 +1,6 @@
 from setup import url_safe_timed_serializer
 from setup import db
-from flask import jsonify,Blueprint
+from flask import jsonify,Blueprint, session
 from Models.Users import Users
 from itsdangerous import SignatureExpired
 from services.UserModule import find_user_by_email, update_user_in_db
@@ -28,6 +28,7 @@ def confirm_email(token):
 
         update_user_in_db(user,db)
 
+        session.pop('email', None)
         response['message'] = "User email is confirmed"
         response['status'] = 200
         return jsonify(response)

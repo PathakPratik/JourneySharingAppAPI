@@ -1,5 +1,5 @@
 import bcrypt
-from flask import request,jsonify,Blueprint
+from flask import request,jsonify,Blueprint, session
 from Models.Users import Users
 from services.UserModule import validate_register_form, validate_email, validate_password, \
                                 password_match_confrimation, add_user_to_db, send_confirmation_account_email
@@ -56,6 +56,9 @@ def register():
             return jsonify(response)
 
         message, status = send_confirmation_account_email(email_)
+
+        session['email'] = registered_user.email
+        session.modified = True
 
         return jsonify(response)
 

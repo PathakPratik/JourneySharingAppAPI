@@ -11,6 +11,5 @@ def logout():
     response = {}
     response["message"] = 'User logged out successfully'
     response["status"] = 200
-    print(session['id'])
     session.pop('id', None)
     return jsonify(response)
