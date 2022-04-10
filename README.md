@@ -32,7 +32,7 @@ Open a new Terminal and run
 
 Copy the container id which its name is journeysharingappapi_api_1. replace the container id you copied with the one in command below, Then run 
 
-`docker exec -it * *container_id bash`
+`docker exec -it __container_id bash`
 
 make sure that pytest and coverage packages are installed by running:
 
