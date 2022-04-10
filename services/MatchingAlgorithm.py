@@ -114,3 +114,16 @@ def parseUser(resultList, instance_of_UserSchema, groupID=None):
     if groupID:
         currRes["GroupId"] = groupID
     resultList.append(currRes)
+
+def parseGroup(resultList, instance_of_Group):
+    currGroup = instance_of_Group
+    parsedUsers = []
+    for user in currGroup["Users"]:
+        currUser = MatchUsersSchema().load(user)
+        currId = currUser["UserId"]
+        currRes = UserSchema().dump(Users.query.filter_by(id=currId).first())
+        currRes["TripStartLocation"] = currUser["TripStartLocation"]
+        currRes["TripStopLocation"] = currUser["TripStopLocation"]
+        parsedUsers.append(currRes)
+    currGroup["Users"] = parsedUsers
+    resultList.append(currGroup)

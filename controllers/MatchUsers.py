@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from marshmallow import Schema, fields, ValidationError
 from constants import REDIS_JOURNEY_LIST
 from Models.ExtendedSchemas import MatchUsersSchema
-from services.MatchingAlgorithm import createJourney, matchingAlgorithm, parseUser
+from services.MatchingAlgorithm import createJourney, matchingAlgorithm, parseUser, parseGroup
 import json
 
 app_match_users = Blueprint('app_match_users', __name__)
@@ -104,13 +104,18 @@ def MatchUsers():
     trueRes = []
     for instance in res:
         #logic if given a user instead of a group
-        print(instance, flush=True)
-        if "UserId" in instance:
-            parseUser(trueRes, instance)
+        if "GroupId" in instance:
+            currGroup = instance
+            parseGroup(trueRes, currGroup)
         else: 
-            for user in instance["Users"]:
-                currGroupID = instance["GroupId"]
-                parseUser(trueRes, user, currGroupID)
+            parseUser(trueRes, instance)
+        # print(instance, flush=True)
+        # if "UserId" in instance:
+        #     parseUser(trueRes, instance)
+        # else: 
+        #     for user in instance["Users"]:
+        #         currGroupID = instance["GroupId"]
+        #         parseUser(trueRes, user, currGroupID)
 
     return jsonify(trueRes), 200
 
