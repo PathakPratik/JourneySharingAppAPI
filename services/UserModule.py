@@ -4,7 +4,7 @@ from flask import url_for, jsonify, session
 from flask_mail import Message
 from Models.Users import Users
 from os import environ
-from setup import url_safe_timed_serializer, mail
+from setup import url_safe_timed_serializer, mail, test_mode
 from sqlalchemy.exc import IntegrityError
 from smtplib import SMTPException
 from functools import wraps
@@ -50,11 +50,15 @@ def find_user_by_id(id):
 
 def check_password(user, password):
 
-    #TO run the test case uncomment below and comment out the one below the commented line
-    #if bcrypt.checkpw(password.encode('utf-8'), user.password):
-    if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-        return 'User logged in successfully', True
-    return 'Wrong password', False
+    if test_mode == True:
+        if bcrypt.checkpw(password.encode('utf-8'), user.password):
+            return 'User logged in successfully', True
+        return 'Wrong password', False
+    else:
+        if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+            return 'User logged in successfully', True
+        return 'Wrong password', False        
+    
 def validate_password(password):
 
     if len(password) < 8:

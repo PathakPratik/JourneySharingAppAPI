@@ -12,3 +12,4 @@ migrate_db = Migrate()
 mail = Mail()
 session_ = Session()
 url_safe_timed_serializer = URLSafeTimedSerializer('Thisisasecret!')
+test_mode = False

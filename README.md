@@ -20,6 +20,46 @@ After building, run the app by running:
 
 The app will then start, be patient, it will fail in the first 5 attempts (maybe more in your machine) as the db and mysql container has to be set up. The app will then automatically restart and eventually connect to the database.
 
-# How to run test cases
+# How to run test cases in docker
 
-`pytest`
+To run the test cases, you first need to run the project using the guidline above. Thenn, go to setup.py and change the test_mode to True
+
+`test_mode = True`
+
+Open a new Terminal and run
+
+`docker container list`
+
+Copy the container id which its name is journeysharingappapi_api_1. replace the container id you copied with the one in command below, Then run 
+
+`docker exec -it **container_id bash`
+
+make sure that pytest and coverage packages are installed by running:
+
+`pip install pytest`
+`pip install coverage`
+
+Navigate to tests directory by
+
+`cd tests`
+
+Run the test cases by ruuning the command below:
+
+`coverage run -m pytest`
+
+After finishing the operation, run command below to see the coverage report:
+
+`coverage report`
+
+If you want to use the GUI for coverage, run:
+
+`coverage html`
+
+This will create a folder under tests directory called htmlcov, open the index.html file in your browser to see the coverage of the test cases line by line within the project.
+
+
+
+
+
+
+

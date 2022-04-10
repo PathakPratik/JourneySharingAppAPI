@@ -62,15 +62,41 @@ class TestUserLogin:
 
     user_3_standard_register = {
         'username' : 'test_user_new_2',
-        'password' : {'jslkdfjslk989O',True,'k;l'},
-        'confirmpassword' : {'jslkdfjslk989O',True,'k;l'},
+        'password' : 'Jslkdfjslk989O',
+        'confirmpassword' : 'Jslkdfjslk989O',
         'gender' : 'male',
         'email' : 'journeysharingappgroup9981@gmail.com'
     }
 
     user_3_standard_login = {
-        'password' : {'jslkdfjslk989O',True,'k;l'},
+        'password' : 'Jslkdfjslk989O',
         'email' : 'journeysharingappgroup9981@gmail.com'
+    }
+
+    user_4_standard_register = {
+        'username' : 'test_user_new_4',
+        'password' : 'Jslkdfjslk989O',
+        'confirmpassword' : 'Jslkdfjslk989O',
+        'gender' : 'male',
+        'email' : 'journeysharingappgroup9984@gmail.com'
+    }
+
+    user_4_standard_login = {
+        'password' : 'Jslkdfjslk989O',
+        'email' : 'journeysharingappgroup@gmail.com'
+    }
+    
+    user_5_standard_register = {
+        'username' : 'test_user_new_5',
+        'password' : 'Jslkdfjslk989O',
+        'confirmpassword' : 'Jslkdfjslk989O',
+        'gender' : 'male',
+        'email' : 'journeysharingappgroup9985@gmail.com'
+    }
+
+    user_5_standard_login = {
+        'password' : 'Jslkdfjslk89O',
+        'email' : 'journeysharingappgroup9985@gmail.com'
     }
 
     user_standard_register_2 = {
@@ -86,21 +112,31 @@ class TestUserLogin:
 
     def test_missing_password(self):
         tester = app.test_client(self)
-        response = tester.post('/login', content_type='multipart/form-data',data=self.user_without_password)
-
+        response = tester.post('/register', content_type='multipart/form-data',data=self.user_2_standard_register)
         # Check for correct validation error
         res_json = response.get_json()
-        expected_res = {'message': 'Missing password', 'status': 400}
-        assert res_json == expected_res
-    
+        expected_res = {'message': 'User registered successfully', 'status': 200}
+        if res_json == expected_res:
+            response = tester.post('/login', content_type='multipart/form-data',data=self.user_without_password)
+            res_json = response.get_json()
+            expected_res = {'message': 'Missing password', 'status': 400}
+            assert res_json == expected_res
+        else:
+            assert res_json == expected_res
+
     def test_missing_email(self):
         tester = app.test_client(self)
-        response = tester.post('/login', content_type='multipart/form-data',data=self.user_without_email)
-
+        response = tester.post('/register', content_type='multipart/form-data',data=self.user_3_standard_register)
         # Check for correct validation error
         res_json = response.get_json()
-        expected_res = {'message': 'Missing email', 'status': 400}
-        assert res_json == expected_res
+        expected_res = {'message': 'User registered successfully', 'status': 200}
+        if res_json == expected_res:
+            response = tester.post('/login', content_type='multipart/form-data',data=self.user_without_email)
+            res_json = response.get_json()
+            expected_res = {'message': 'Missing email', 'status': 400}
+            assert res_json == expected_res
+        else:
+            assert res_json == expected_res
 
     def test_registered_user_login(self):
         tester = app.test_client(self)
@@ -125,25 +161,32 @@ class TestUserLogin:
     
     def test_registered_user_login_wrong_password(self):
         tester = app.test_client(self)
-        response = tester.post('/register', content_type='multipart/form-data',data=self.user_2_standard_register)
+        response = tester.post('/register', content_type='multipart/form-data',data=self.user_4_standard_register)
         # Check for correct validation error
         res_json = response.get_json()
         expected_res = {'message': 'User registered successfully', 'status': 200}
         if res_json == expected_res:
-            response = tester.post('/login', content_type='multipart/form-data',data=self.user_2_standard_login)
+            response = tester.post('/login', content_type='multipart/form-data',data=self.user_4_standard_login)
             res_json = response.get_json()
-            expected_res = {'message': 'Wrong password', 'status': 400}
+            expected_res = {'message': 'User not found', 'status': 400}
             assert res_json == expected_res
         else:
             assert res_json == expected_res
     
     def test_user_unsuccessful_login(self):
         tester = app.test_client(self)
-        response = tester.post('/login', content_type='multipart/form-data',data=self.user_standard_register_)
-
+        response = tester.post('/register', content_type='multipart/form-data',data=self.user_5_standard_register)
+        # Check for correct validation error
         res_json = response.get_json()
-        expected_res = {'message': 'User not found', 'status': 400}
-        assert res_json == expected_res
+        expected_res = {'message': 'User registered successfully', 'status': 200}
+        if res_json == expected_res:
+            response = tester.post('/login', content_type='multipart/form-data',data=self.user_5_standard_login)
+            res_json = response.get_json()
+            expected_res = {'message': 'Wrong password', 'status': 400}
+            assert res_json == expected_res
+        else:
+            assert res_json == expected_res
+
     
    
 

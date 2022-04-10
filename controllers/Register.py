@@ -3,7 +3,8 @@ from flask import request,jsonify,Blueprint, session
 from Models.Users import Users
 from services.UserModule import validate_register_form, validate_email, validate_password, \
                                 password_match_confrimation, add_user_to_db, send_confirmation_account_email
-from setup import db
+from setup import db, test_mode
+import datetime
 
 app_register = Blueprint('app_register',__name__)
 
@@ -45,9 +46,17 @@ def register():
             return jsonify(response)
     
         hashed_password = bcrypt.hashpw(password_.encode('utf-8'), bcrypt.gensalt())
-        registered_user = Users(username_, email_, gender_, hashed_password, \
+
+        if(test_mode == True):
+            registered_user = Users(username_, email_, gender_, hashed_password, \
+                                admin=False, confirmed=True, confirmed_on=datetime.datetime.now(),\
+                                current_rating=0, rating_count=0)
+        
+        else:
+            registered_user = Users(username_, email_, gender_, hashed_password, \
                                 admin=False, confirmed=False, confirmed_on=None,\
                                 current_rating=0, rating_count=0)
+
 
         message, status = add_user_to_db(registered_user, db)
         response['message'] = message
