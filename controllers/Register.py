@@ -6,6 +6,8 @@ from services.UserModule import validate_register_form, validate_email, validate
 from setup import db, test_mode
 import datetime
 from marshmallow import Schema
+from random import randint
+
 #Create User Schema
 class UserSchema(Schema):
     class Meta:
