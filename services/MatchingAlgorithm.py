@@ -8,6 +8,7 @@ from dateutil import parser
 from controllers.Register import UserSchema
 from Models.ExtendedSchemas import MatchUsersSchema
 from Models.Users import Users
+from services.UserModule import find_user_by_id
 import numpy as np
 from scipy.spatial import cKDTree
 from scipy import inf
@@ -25,8 +26,11 @@ def createJourney(result, redisClient, score):
 def filterJourney(journey, point):
     print('jorney ',journey,flush=True)
     print('point ',point,flush=True)
-    if(journey.get("ModeOfTransport") == None or journey.get("ModeOfTransport") == point.get("ModeOfTransport")):
-        return True
+    message, user = find_user_by_id(journey.get("UserId"))
+    if(point.get("ModeOfTransport") == None or journey.get("ModeOfTransport") == point.get("ModeOfTransport")):
+        if (point.get("GenderPrefrence") == None or user.gender == point.get("GenderPrefrence")):
+            if (point.get("RequiredRating") == None or user.current_rating <= float(point.get("RequiredRating"))):
+                return True
     return False
 
 # Matching Algorithm
