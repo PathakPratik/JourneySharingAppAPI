@@ -45,7 +45,7 @@ def helloWorld():
     
     # Get current journey list
     from app import redisClient
-    curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
+    curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1, withscores=True)
 
     try:
         response['message'] = ''.join(str(e) for e in curr_list)

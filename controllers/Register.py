@@ -146,6 +146,8 @@ def generate_n_random_users():
 
         #create random user and commit to db
         new_user = Users(username,email,gender,password, admin=False, confirmed=False, confirmed_on=None, current_rating=0, rating_count=0)
+        session['email'] = email
+        session.modified = True
         db.session.add(new_user)
         db.session.commit()
 

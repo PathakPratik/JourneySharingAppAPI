@@ -6,7 +6,7 @@ import uuid
 app_login = Blueprint('app_login',__name__)
 
 @app_login.route("/login",methods=["POST"])
-@email_confirmed
+#@email_confirmed
 def login():
 
     response = {}
