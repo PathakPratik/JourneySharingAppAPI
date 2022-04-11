@@ -38,6 +38,7 @@ def ScheduleJourney():
     from app import redisClient
     try:
         userId = session.get('id')
+        result["UserId"] = userId
         createJourney(result, redisClient, userId)
     except redisClient.RedisError as err:
         return jsonify(err), 500
@@ -92,6 +93,7 @@ def MatchUsers():
     # Add new journey to the list
     try:
         userId = session.get('id')
+        result["UserId"] = userId
         createJourney(result, redisClient, userId)
     except redisClient.RedisError as err:
         return jsonify(err), 500

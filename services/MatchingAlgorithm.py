@@ -22,50 +22,63 @@ def createJourney(result, redisClient, score):
         result["time"] = result['ScheduleTime'] if 'ScheduleTime' in result else time.time()
         redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): score })
 
+def filterJourney(journey, point):
+    print('jorney ',journey,flush=True)
+    print('point ',point,flush=True)
+    if(journey.get("ModeOfTransport") == None or journey.get("ModeOfTransport") == point.get("ModeOfTransport")):
+        return True
+    return False
+
 # Matching Algorithm
 def matchingAlgorithm(curr_list, point):
     start_arr, dest_arr = [], []
     
+    print(curr_list,flush=True)
     for each in curr_list:
         journey = json.loads(each)
         
         if filterFutureJourney(journey):
             continue
-
-        start_arr.append(journey.get("TripStartLocation"))
-        dest_arr.append(journey.get("TripStopLocation"))
+        
+        if filterJourney(journey, point):
+            start_arr.append(journey.get("TripStartLocation"))
+            dest_arr.append(journey.get("TripStopLocation"))
     
     # If no journeys pass filters return empty result
     if not start_arr or not dest_arr:
         return []
 
+    print("start_arr ",start_arr,flush=True)
+    print("dest_arr ",dest_arr,flush=True)
     # Get neighbour points
     neighbors = findNeighbours(start_arr, dest_arr, point)
-    
+    print("neighbors ",neighbors,flush=True)
     # Save result
     res = []
     for i in neighbors:
         each = json.loads(curr_list[i])
+        print('each', each, flush=True)
+        print('point', point, flush=True)
         if 'GroupId' in each:
             each['GroupId'] = abs(each['GroupId'])
             res.append(each)
         elif 'UserId' in each and each['UserId'] != point['UserId']:
             res.append(each)
-    
+    print('res',res,flush=True)
     return res
 
 # Remove journeys scheduled for future
 def filterFutureJourney(journey):
     if type(journey['time']) == str:
         diff = parser.parse(journey['time']) - datetime.today()
-        if diff > timedelta(minutes=3):
+        if diff > timedelta(minutes=10):
             return True
         if diff < timedelta(0):
             return True
     else:
         diff = journey['time'] - time.time()
 
-        if diff < -180:
+        if diff < -600:
             return True
 
 # Find neighbouring points from start and destinations
