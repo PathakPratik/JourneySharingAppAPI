@@ -72,6 +72,7 @@ def DeleteJourneys():
 
 
 @app_match_users.route("/match-users", methods=['POST'])
+@login_required
 def MatchUsers():
 
     # Unmarshal Payload
@@ -180,6 +181,7 @@ class GroupUsersSchema(Schema):
 
 # Group Users API
 @app_match_users.route("/group-users", methods=['POST'])
+@login_required
 def GroupUsers():
     
     # Unmarshal Payload
