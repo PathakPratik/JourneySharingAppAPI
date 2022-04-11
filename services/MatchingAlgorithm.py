@@ -14,9 +14,14 @@ def createJourney(result, redisClient, score):
     #Check if already exists
     entry = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, score, score)
     
-    if len(entry) == 0:
-        result["time"] = result['ScheduleTime'] if 'ScheduleTime' in result else time.time()
-        redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): score })
+    if len(entry) != 0:
+        is_stale = filterFutureJourney(entry)
+
+        if not is_stale:
+            return
+    
+    result["time"] = result['ScheduleTime'] if 'ScheduleTime' in result else time.time()
+    redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): score })
 
 # Matching Algorithm
 def matchingAlgorithm(curr_list, point):
