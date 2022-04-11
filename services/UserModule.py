@@ -1,12 +1,13 @@
 import bcrypt
 import re
-from flask import url_for
+from flask import url_for, jsonify, session
 from flask_mail import Message
 from Models.Users import Users
 from os import environ
-from setup import url_safe_timed_serializer, mail
+from setup import url_safe_timed_serializer, mail, test_mode
 from sqlalchemy.exc import IntegrityError
 from smtplib import SMTPException
+from functools import wraps
 
 
 def validate_login_form(password, email):
@@ -19,6 +20,16 @@ def validate_login_form(password, email):
 
     return 'Form is correct', True
 
+def validate_rating_form(rating, user_id):
+
+    if user_id == '':
+        return 'Missing rating', False
+    
+    if rating=='':
+        return 'Missing user id', False
+
+    return 'Form is correct', True
+    
 def find_user_by_email(email):
 
     user = Users.query.filter_by(email=email).first()
@@ -28,13 +39,26 @@ def find_user_by_email(email):
 
     return 'User found', user
 
+def find_user_by_id(id):
+
+    user = Users.query.filter_by(id=id).first()
+
+    if not user:
+        return 'User not found', None
+
+    return 'User found', user
+
 def check_password(user, password):
+
+    if test_mode == True:
+        if bcrypt.checkpw(password.encode('utf-8'), user.password):
+            return 'User logged in successfully', True
+        return 'Wrong password', False
+    else:
+        if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
+            return 'User logged in successfully', True
+        return 'Wrong password', False        
     
-    if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
-        return 'User logged in successfully', 200
-
-    return 'Wrong password', 401
-
 def validate_password(password):
 
     if len(password) < 8:

@@ -1,8 +1,10 @@
 import bcrypt
-from flask import request,jsonify,Blueprint
+from flask import request,jsonify,Blueprint, session
 from Models.Users import Users
-import re
-from sqlalchemy.exc import IntegrityError
+from services.UserModule import validate_register_form, validate_email, validate_password, \
+                                password_match_confrimation, add_user_to_db, send_confirmation_account_email
+from setup import db, test_mode
+import datetime
 from marshmallow import Schema
 from random import randint
 
@@ -15,27 +17,6 @@ class UserSchema(Schema):
 #Init User Schemas
 user_schema = UserSchema() #return 1 user
 users_schema = UserSchema(many=True) #return many users
-
-def validate_password(password):
-    if len(password) < 8:
-        return "Password must be at least 8 chracters"
-    elif re.search('[0-9]',password) is None:
-        return "Password must contain at least one digit"
-    elif re.search('[A-Z]',password) is None: 
-        return "Password must contain at least one capital letter"
-    else:
-        return ""
-
-def validate_email(email):
-    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$' 
-    if re.search(regex,email) is None:   
-        return "Invalid email address"
-    else:   
-        return ""
-from services.UserModule import validate_register_form, validate_email, validate_password , \
-                                password_match_confrimation, add_user_to_db, send_confirmation_account_email
-from setup import db
-
 
 app_register = Blueprint('app_register',__name__)
 
@@ -77,7 +58,17 @@ def register():
             return jsonify(response)
     
         hashed_password = bcrypt.hashpw(password_.encode('utf-8'), bcrypt.gensalt())
-        registered_user = Users(username_, email_, gender_, hashed_password, admin=False, confirmed=False, confirmed_on=None)
+
+        if(test_mode == True):
+            registered_user = Users(username_, email_, gender_, hashed_password, \
+                                admin=False, confirmed=True, confirmed_on=datetime.datetime.now(),\
+                                current_rating=0, rating_count=0)
+        
+        else:
+            registered_user = Users(username_, email_, gender_, hashed_password, \
+                                admin=False, confirmed=False, confirmed_on=None,\
+                                current_rating=0, rating_count=0)
+
 
         message, status = add_user_to_db(registered_user, db)
         response['message'] = message
@@ -87,9 +78,11 @@ def register():
 
         message, status = send_confirmation_account_email(email_)
 
+        session['email'] = registered_user.email
+        session.modified = True
+
         return jsonify(response)
 
-        
     except AttributeError:
         response["message"] = 'Bad request - Provide an username and Password in JSON format in the request body'
         response["status"] = 400
@@ -99,7 +92,6 @@ def register():
 @app_register.route("/show-all", methods=["GET"])
 def get_all_users():
     """Dev method to return all users currently int the db
-
     Returns:
         json: Returns a json stream containing all the current users
     """
@@ -107,11 +99,9 @@ def get_all_users():
     results =users_schema.dump(all_users)
     return jsonify(results), 200
 
-
 @app_register.route("/generate-random-user", methods=["POST"])
 def generate_random_user():
     """Dev method to generate a single random user
-
     Returns:
         json: Details of the random user generated in json format.
     """
@@ -136,7 +126,6 @@ def generate_random_user():
 @app_register.route("/generate-n-random-users", methods=["POST"])
 def generate_n_random_users():
     """Dev method to generate a number of random users
-
     Args: 
         numusers: Reads the number of users to be generated
          from request.form[]
@@ -156,7 +145,7 @@ def generate_n_random_users():
         gender = "Male" if random_int%2==0 else "Female"
 
         #create random user and commit to db
-        new_user = Users(username,email,gender,password, admin=False, confirmed=False, confirmed_on=None)
+        new_user = Users(username,email,gender,password, admin=False, confirmed=False, confirmed_on=None, current_rating=0, rating_count=0)
         db.session.add(new_user)
         db.session.commit()
 
@@ -165,6 +154,3 @@ def generate_n_random_users():
     
     newusers = users_schema.dump(generated_users)
     return jsonify(newusers), 200
-
-
-
