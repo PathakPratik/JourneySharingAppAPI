@@ -1,8 +1,9 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, session
 from marshmallow import Schema, fields, ValidationError
 from constants import REDIS_JOURNEY_LIST
 from Models.ExtendedSchemas import MatchUsersSchema
 from services.MatchingAlgorithm import createJourney, matchingAlgorithm, parseUser, parseGroup
+from services.Decorator import login_required
 import json
 
 app_match_users = Blueprint('app_match_users', __name__)
@@ -15,11 +16,15 @@ class ScheduleJourneySchema(Schema):
     TripStartLocation = fields.List(fields.String(), required=True)
     TripStopLocation = fields.List(fields.String(), required=True)
     ScheduleTime = fields.String(required=True)
+    GenderPrefrence = fields.String(required=False)
+    RequiredRating = fields.String(required=False)
+    ModeOfTransport = fields.String(required=False)
 
 # Schedule Journey API
 
 
 @app_match_users.route("/schedule-journey", methods=['POST'])
+@login_required
 def ScheduleJourney():
 
     # Unmarshal Payload
@@ -33,7 +38,7 @@ def ScheduleJourney():
     # Add new journey to the list with schedule timestamp
     from app import redisClient
     try:
-        createJourney(result, redisClient, result['UserId'])
+        createJourney(result, redisClient, session.get('id'))
     except redisClient.RedisError as err:
         return jsonify(err), 500
 
