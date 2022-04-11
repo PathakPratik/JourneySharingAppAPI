@@ -156,7 +156,7 @@ def generate_n_random_users():
         gender = "Male" if random_int%2==0 else "Female"
 
         #create random user and commit to db
-        new_user = Users(username,email,gender,password)
+        new_user = Users(username,email,gender,password, admin=False, confirmed=False, confirmed_on=None)
         db.session.add(new_user)
         db.session.commit()
 

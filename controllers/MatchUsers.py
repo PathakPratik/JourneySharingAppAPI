@@ -71,6 +71,10 @@ def MatchUsers():
     # Unmarshal Payload
     request_data = request.json
     schema = MatchUsersSchema()
+    
+    if type(request_data) == str:
+        request_data = json.loads(request_data)
+
     try:
         result = schema.load(request_data)
     except ValidationError as err:
@@ -92,14 +96,6 @@ def MatchUsers():
 
     # Get matches result
     res = matchingAlgorithm(curr_list, result)
-    print(res, flush=True)
-    # res = [{
-    #     "UserId": "5",
-    #     "TripStartLocation": ["53.257", "-6.126"],
-    #     "TripStopLocation": ["53.2064", "-6.1113"]
-    # }]
-
-    # return res 
 
     trueRes = []
     for instance in res:
@@ -109,13 +105,6 @@ def MatchUsers():
             parseGroup(trueRes, currGroup)
         else: 
             parseUser(trueRes, instance)
-        # print(instance, flush=True)
-        # if "UserId" in instance:
-        #     parseUser(trueRes, instance)
-        # else: 
-        #     for user in instance["Users"]:
-        #         currGroupID = instance["GroupId"]
-        #         parseUser(trueRes, user, currGroupID)
 
     return jsonify(trueRes), 200
 
@@ -188,6 +177,10 @@ def GroupUsers():
     # Unmarshal Payload
     request_data = request.json
     schema = GroupUsersSchema()
+
+    if type(request_data) == str:
+        request_data = json.loads(request_data)
+
     try:
         result = schema.load(request_data)
     except ValidationError as err:
