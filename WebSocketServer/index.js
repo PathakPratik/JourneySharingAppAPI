@@ -53,14 +53,14 @@ const broadcastChanges = async (socket) => {
     results.forEach((result, i) => {
       if (result.status == "fulfilled") {
         const { status, data } = result.value;
-        io.to(clients[i]).emit({
+        io.to(clients[i]).emit("routeMatches", {
           action: "routeMatches",
           status,
           data,
         });
       } else {
         const { status, data } = result.reason.response;
-        io.to(clients[i]).emit({
+        io.to(clients[i]).emit("routeMatches", {
           action: "routeMatches",
           status,
           data,
@@ -76,7 +76,7 @@ const broadcastChanges = async (socket) => {
 // Handle Clients
 io.on("connection", async (socket) => {
   // Connection message
-  io.to(socket.id).emit({ action: "connected" });
+  io.to(socket.id).emit("connected", { action: "connected" });
 
   // routeMatches
   socket.on("routeMatches", async (payload) => {
@@ -91,7 +91,7 @@ io.on("connection", async (socket) => {
     GroupUsers(payload)
       .then(async (result) => {
         const { status, data } = result;
-        io.to(socket.id).emit({
+        io.to(socket.id).emit("groupUsers", {
           action: "groupUsers",
           status,
           data,
@@ -101,7 +101,7 @@ io.on("connection", async (socket) => {
       .catch((err) => {
         if (err.hasOwnProperty("response")) {
           const { status, data } = err.response;
-          io.to(socket.id).emit({
+          io.to(socket.id).emit("groupUsers", {
             action: "groupUsers",
             status,
             data,
