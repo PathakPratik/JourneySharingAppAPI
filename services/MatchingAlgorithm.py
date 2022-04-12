@@ -13,15 +13,24 @@ import numpy as np
 from scipy.spatial import cKDTree
 from scipy import inf
 
-# Add new journey to the list with current timestamp as score
+# Add new journey to the list with userId as score
 def createJourney(result, redisClient, score):
 
     #Check if already exists
     entry = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, score, score)
     
-    if len(entry) == 0:
-        result["time"] = result['ScheduleTime'] if 'ScheduleTime' in result else time.time()
-        redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): score })
+    if len(entry) != 0:
+        req = json.loads(entry[0])
+        is_stale = filterFutureJourney(req)
+
+        if not is_stale:
+            if compareRequest(req, result):
+                return
+        else:
+            redisClient.zremrangebyscore(REDIS_JOURNEY_LIST, score, score)
+
+    result["time"] = result['ScheduleTime'] if 'ScheduleTime' in result else time.time()
+    redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): score })
 
 def filterJourney(journey, point):
     message, user = find_user_by_id(journey.get("UserId"))
@@ -76,6 +85,12 @@ def filterFutureJourney(journey):
 
         if diff < -180:
             return True
+
+# Compare if request is same
+def compareRequest(a,b):
+    if a['TripStartLocation'] != b['TripStartLocation'] or a['TripStopLocation'] != b['TripStopLocation']:
+        return False
+    return True
 
 # Find neighbouring points from start and destinations
 def findNeighbours(start_arr, dest_arr, point):
