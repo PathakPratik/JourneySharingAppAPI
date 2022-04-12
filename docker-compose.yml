@@ -13,6 +13,45 @@ services:
     restart: on-failure:15
     environment:
       - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
+  api2:
+    image: journey_sharing_app:v1
+    entrypoint: python app.py
+    ports:
+      - '5001:5001'
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    restart: on-failure:15
+    environment:
+      - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
+  api3:
+    image: journey_sharing_app:v1
+    entrypoint: python app.py
+    ports:
+      - '5002:5002'
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    restart: on-failure:15
+    environment:
+      - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
+  api4:
+    image: journey_sharing_app:v1
+    entrypoint: python app.py
+    ports:
+      - '5004:5004'
+    volumes:
+      - .:/app
+    depends_on:
+      - db
+      - redis
+    restart: on-failure:15
+    environment:
+      - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
   db:
     container_name: "mysql_container"
     image: mysql_container:1.0.0
