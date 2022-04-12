@@ -4,7 +4,7 @@ class MatchUsersSchema(Schema):
     UserId = fields.Integer(required=False)
     TripStartLocation = fields.List(fields.String(), required=True)
     TripStopLocation = fields.List(fields.String(), required=True)
-    time = fields.String(required=False)
+    time = fields.Float(required=False)
     ScheduleTime = fields.String(required=False)
     GenderPreference = fields.String(required=False)
     RequiredRating = fields.String(required=False)

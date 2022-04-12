@@ -43,6 +43,10 @@ app.register_blueprint(app_ratings)
 from controllers.userInfo import app_user_info
 app.register_blueprint(app_user_info)
 
+from controllers.getScheduledJourneyInfo import app_get_scheduled_journey
+app.register_blueprint(app_get_scheduled_journey)
+
+
 if __name__ == "__main__":
     with app.app_context():
         #init_db = init() #Initialize the DB migriation path

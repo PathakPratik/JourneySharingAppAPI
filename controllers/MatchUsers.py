@@ -4,6 +4,9 @@ from constants import REDIS_JOURNEY_LIST
 from Models.ExtendedSchemas import MatchUsersSchema
 from services.MatchingAlgorithm import createJourney, matchingAlgorithm, parseUser, parseGroup
 from services.Decorator import login_required
+from services.ScheduledJourneyModule import add_journey_to_db
+from Models.ScheduledJourney import ScheduledJourney
+from setup import db
 import json
 
 app_match_users = Blueprint('app_match_users', __name__)
@@ -40,10 +43,15 @@ def ScheduleJourney():
         userId = session.get('id')
         result["UserId"] = userId
         createJourney(result, redisClient, userId)
+        scheduledJourney = ScheduledJourney(creatorId=str(userId), TripStartLocation=str(result['TripStartLocation']), TripStopLocation=str(result['TripStopLocation']),
+                         ScheduleTime=str(result['ScheduleTime']), GenderPreference=str(result['GenderPreference']), RequiredRating=str(result['RequiredRating']),
+                         ModeOfTransport=str(result['ModeOfTransport']))
+        message, status = add_journey_to_db(scheduledJourney, db)
+
     except redisClient.RedisError as err:
         return jsonify(err), 500
 
-    # Return current journey list
+    # Return current journey list()
     # curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
     # return ''.join(str(e) for e in curr_list), 200
 
