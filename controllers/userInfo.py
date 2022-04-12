@@ -3,10 +3,10 @@ from flask import jsonify, Blueprint, session
 from services.UserModule import find_user_by_id
 from services.Decorator import login_required
 
-user_info = Blueprint('app_ratings',__name__)
-ratings_Currently=0
+app_user_info = Blueprint('app_user_info',__name__)
 
-@user_info.route("/user-info",methods=["GET"])
+
+@app_user_info.route("/user-info",methods=["GET"])
 @login_required
 def userInfo():
 

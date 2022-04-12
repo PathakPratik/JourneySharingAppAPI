@@ -40,8 +40,8 @@ from controllers.Rating import app_ratings
 app.register_blueprint(app_ratings)
 
 # Add UserInfo Controller
-from controllers.userInfo import user_info
-app.register_blueprint(user_info)
+from controllers.userInfo import app_user_info
+app.register_blueprint(app_user_info)
 
 if __name__ == "__main__":
     with app.app_context():
