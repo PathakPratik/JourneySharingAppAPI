@@ -35,9 +35,13 @@ app.register_blueprint(app_logout)
 from controllers.EmailConformation import app_confirm_email
 app.register_blueprint(app_confirm_email)
 
-# Add Rating Confirmation Controller
+# Add Rating Controller
 from controllers.Rating import app_ratings
 app.register_blueprint(app_ratings)
+
+# Add UserInfo Controller
+from controllers.userInfo import user_info
+app.register_blueprint(user_info)
 
 if __name__ == "__main__":
     with app.app_context():
