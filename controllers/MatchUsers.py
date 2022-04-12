@@ -15,7 +15,7 @@ class ScheduleJourneySchema(Schema):
     TripStartLocation = fields.List(fields.String(), required=True)
     TripStopLocation = fields.List(fields.String(), required=True)
     ScheduleTime = fields.String(required=True)
-    GenderPrefrence = fields.String(required=False)
+    GenderPreference = fields.String(required=False)
     RequiredRating = fields.String(required=False)
     ModeOfTransport = fields.String(required=False)
 

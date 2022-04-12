@@ -6,6 +6,6 @@ class MatchUsersSchema(Schema):
     TripStopLocation = fields.List(fields.String(), required=True)
     time = fields.String(required=False)
     ScheduleTime = fields.String(required=False)
-    GenderPrefrence = fields.String(required=False)
+    GenderPreference = fields.String(required=False)
     RequiredRating = fields.String(required=False)
     ModeOfTransport = fields.String(required=False)
