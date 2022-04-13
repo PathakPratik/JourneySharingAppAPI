@@ -1,12 +1,10 @@
 from flask import request, jsonify, Blueprint, session
 from services.UserModule import validate_login_form, check_password, find_user_by_email, check_email_confirmation
-from services.Decorator import email_confirmed
-import uuid
+
 
 app_login = Blueprint('app_login',__name__)
 
 @app_login.route("/login",methods=["POST"])
-#@email_confirmed
 def login():
 
     response = {}
