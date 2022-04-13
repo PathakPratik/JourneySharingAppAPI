@@ -6,6 +6,7 @@ const HelloWorld = require("./helloWorld");
 const MatchUsers = require("./matchUsers");
 const GroupUsers = require("./groupUsers");
 const GroupSubscription = require("./GroupSubscription");
+const StartJourney = require("./StartJourney");
 const Redis = require("ioredis");
 
 const redis = new Redis(6379, "redis");
@@ -189,6 +190,33 @@ io.on("connection", async (socket) => {
           const { status, data } = err.response;
           io.to(socket.id).emit("groupSubscription", {
             action: "groupSubscription",
+            status,
+            data,
+          });
+        }
+      });
+  });
+
+  // Start Journey
+  socket.on("startJourney", (payload) => {
+    StartJourney(payload)
+      .then(async (result) => {
+        const { status, data } = result;
+
+        io.to(socket.id).emit("startJourney", {
+          action: "startJourney",
+          status,
+          data,
+        });
+
+        await broadcastChanges(socket);
+        await broadcastSubscriptions(socket);
+      })
+      .catch((err) => {
+        if (err.hasOwnProperty("response")) {
+          const { status, data } = err.response;
+          io.to(socket.id).emit("startJourney", {
+            action: "startJourney",
             status,
             data,
           });

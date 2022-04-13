@@ -51,10 +51,6 @@ def ScheduleJourney():
     except redisClient.RedisError as err:
         return jsonify(err), 500
 
-    # Return current journey list()
-    # curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
-    # return ''.join(str(e) for e in curr_list), 200
-
     # Return Success
     return "Success", 200
 
@@ -249,7 +245,8 @@ def GroupUsers():
                 'GroupId': -User1['UserId'],
                 'TripStartLocation': User1['TripStartLocation'],
                 'TripStopLocation': User1['TripStopLocation'],
-                'Users': [User1, User2]
+                'Users': [User1, User2],
+                'JourneyStatus': 'Waiting'
             }
             createJourney(Group, redisClient, Group['GroupId'])
 
@@ -281,13 +278,55 @@ def GroupSubscription():
     except ValidationError as err:
         return jsonify(err.messages), 400
 
-    from app import redisClient
+    try:
+        from app import redisClient
 
-    Group = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, -result['GroupId'], -result['GroupId'])
+        Group = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, -result['GroupId'], -result['GroupId'])
 
-    if not Group:
-        return jsonify("Group does not exist!"), 400
-    else:
-        Group = json.loads(Group[0])
-        Group['GroupId'] = abs(Group['GroupId'])
-        return jsonify(Group), 200
+        if not Group:
+            return jsonify("Group does not exist!"), 400
+        else:
+            Group = json.loads(Group[0])
+            Group['GroupId'] = abs(Group['GroupId'])
+            return jsonify(Group), 200
+    except:
+            return jsonify("Something went wrong!!"), 500
+
+# Payload Schema for Group Subcription API
+class StartJourneySchema(Schema):
+    GroupId = fields.Integer(required=True)
+
+# Start Journey API
+@app_match_users.route("/start-journey", methods=['POST'])
+# @login_required
+def StartJourney():
+    # Unmarshal Payload
+    request_data = request.json
+    schema = StartJourneySchema()
+
+    if type(request_data) == str:
+        request_data = json.loads(request_data)
+
+    try:
+        result = schema.load(request_data)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    try:
+        from app import redisClient
+
+        GroupId = -result['GroupId']
+
+        Group = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, GroupId, GroupId)
+
+        if not Group:
+            return jsonify("Group does not exist!"), 400
+        else:
+            # Update Group Journey Status
+            Group = json.loads(Group[0])
+            Group['JourneyStatus'] = 'Started'
+            redisClient.zremrangebyscore(REDIS_JOURNEY_LIST, GroupId, GroupId)
+            createJourney(Group, redisClient, GroupId)
+            return jsonify("Success!"), 200
+    except:
+        return jsonify("Something went wrong!!"), 500
