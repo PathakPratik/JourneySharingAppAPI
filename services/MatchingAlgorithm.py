@@ -46,8 +46,8 @@ def filterJourney(journey, point):
         print(user_j.gender == point.get("GenderPreference") and user_p.gender == journey.get("GenderPreference"),flush=True)
         if (point.get("GenderPreference") == 'Everyone' or (user_j.gender == point.get("GenderPreference") and user_p.gender == journey.get("GenderPreference"))):
             if (point.get("RequiredRating") == None or (float(user_j.current_rating) >= float(point.get("RequiredRating")) and (float(user_p.current_rating) >= float(journey.get("RequiredRating")) ))):
-                return True
-    return False
+                return False
+    return True
 
 # Matching Algorithm
 def matchingAlgorithm(curr_list, point):
