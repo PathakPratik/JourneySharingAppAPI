@@ -1,14 +1,15 @@
 package main
 
-import(
+import (
+	"fmt"
+	"log"
+	"net/http"
+	"time"
+
+	"github.com/gorilla/mux"
 	"github.com/sheilkumar/LoadBalancerGo/loadbalancer"
 	"github.com/sheilkumar/LoadBalancerGo/server"
-	"fmt"
-	"net/http"
-	"log"
-	"time"
-	"github.com/gorilla/mux"
-// )
+	// )
 )
 
 func main() {
@@ -16,10 +17,10 @@ func main() {
 	r := mux.NewRouter()
 	// fmt.Println(lb)
 	// fmt.Println(sv1)
-	lb.AddServer(server.CreateNewServer("server-2", "http://172.21.0.6:5000"))
-	lb.AddServer(server.CreateNewServer("server-3", "http://172.21.0.7:5000"))
-	lb.AddServer(server.CreateNewServer("server-4", "http://172.21.0.8:5000"))
-	lb.AddServer(server.CreateNewServer("server-5", "http://172.21.0.9:5000"))
+	lb.AddServer(server.CreateNewServer("server-2", "http://api:5000"))
+	lb.AddServer(server.CreateNewServer("server-3", "http://api2:5000"))
+	lb.AddServer(server.CreateNewServer("server-4", "http://api3:5000"))
+	lb.AddServer(server.CreateNewServer("server-5", "http://api4:5000"))
 	fmt.Println(lb)
 	r.PathPrefix("/").HandlerFunc(lb.ServeRequest)
 	// http.HandleFunc("/", lb.ServeRequest)
