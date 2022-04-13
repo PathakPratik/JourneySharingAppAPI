@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, session
-from marshmallow import Schema, fields, ValidationError
+from marshmallow import Schema, fields, ValidationError, validate
 from constants import REDIS_JOURNEY_LIST
 from Models.ExtendedSchemas import MatchUsersSchema
 from services.MatchingAlgorithm import createJourney, matchingAlgorithm, parseUser, parseGroup
@@ -295,9 +295,10 @@ def GroupSubscription():
 # Payload Schema for Group Subcription API
 class StartJourneySchema(Schema):
     GroupId = fields.Integer(required=True)
+    Action = fields.String(validate=validate.OneOf(['Start', 'End']), required=True)
 
 # Start Journey API
-@app_match_users.route("/start-journey", methods=['POST'])
+@app_match_users.route("/journey-action", methods=['POST'])
 # @login_required
 def StartJourney():
     # Unmarshal Payload
@@ -324,7 +325,7 @@ def StartJourney():
         else:
             # Update Group Journey Status
             Group = json.loads(Group[0])
-            Group['JourneyStatus'] = 'Started'
+            Group['JourneyStatus'] = result['Action']
             redisClient.zremrangebyscore(REDIS_JOURNEY_LIST, GroupId, GroupId)
             createJourney(Group, redisClient, GroupId)
             return jsonify("Success!"), 200

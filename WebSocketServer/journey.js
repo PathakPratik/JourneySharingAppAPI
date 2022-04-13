@@ -1,9 +1,9 @@
 const axios = require("axios").default;
 
-const StartJourneyAPI = (payload) => {
+const JourneyAPI = (payload) => {
   return new Promise((resolve) => {
     resolve(
-      axios.post("http://api:5000/start-journey", JSON.stringify(payload), {
+      axios.post("http://api:5000/journey-action", JSON.stringify(payload), {
         headers: {
           "Content-Type": "application/json",
         },
@@ -12,4 +12,4 @@ const StartJourneyAPI = (payload) => {
   });
 };
 
-module.exports = StartJourneyAPI;
+module.exports = JourneyAPI;
