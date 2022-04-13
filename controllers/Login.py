@@ -1,6 +1,7 @@
+from cgi import test
 from flask import request, jsonify, Blueprint, session
 from services.UserModule import validate_login_form, check_password, find_user_by_email, check_email_confirmation
-
+from setup import test_mode
 
 app_login = Blueprint('app_login',__name__)
 
@@ -19,11 +20,12 @@ def login():
             response['status'] = 400
             return jsonify(response)
         
-        message, email_confirmed = check_email_confirmation(email=email_)
-        if not email_confirmed:
-            response["message"] = message
-            response["status"] = 400
-            return jsonify(response)
+        if not test_mode:
+            message, email_confirmed = check_email_confirmation(email=email_)
+            if not email_confirmed:
+                response["message"] = message
+                response["status"] = 400
+                return jsonify(response)
         
         message, user = find_user_by_email(email_)
         if(user == None):

@@ -27,8 +27,7 @@ def confirm_email(token):
         user.confirmed_on = datetime.datetime.now()
 
         update_user_in_db(user,db)
-
-        session.pop('email', None)
+        
         response['message'] = "User email is confirmed"
         response['status'] = 200
         return jsonify(response)

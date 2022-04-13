@@ -12,11 +12,6 @@ def userInfo():
     response = {}
     message, user = find_user_by_id(session.get('id'))
 
-    if user is None:
-        response['message']=message
-        response['status']=400
-        return jsonify(response)
-
     response['userid'] = user.id
     response['username'] = user.username
     response['rating'] = user.current_rating
