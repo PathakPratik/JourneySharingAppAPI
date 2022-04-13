@@ -57,7 +57,14 @@ def check_password(user, password):
     else:
         if bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8')):
             return 'User logged in successfully', True
-        return 'Wrong password', False        
+        return 'Wrong password', False 
+
+def check_email_confirmation(email):
+
+    user = Users.query.filter_by(email=email).first()
+    if user.confirmed == True:
+        return 'Email is confirmed', True
+    return 'Email not confirmed', False
     
 def validate_password(password):
 
