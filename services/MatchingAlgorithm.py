@@ -43,7 +43,6 @@ def filterJourney(journey, point):
     message, user_j = find_user_by_id(journey.get("UserId"))
     message, user_p = find_user_by_id(point.get("UserId"))
     if(point.get("ModeOfTransport") == None or journey.get("ModeOfTransport") == point.get("ModeOfTransport")):
-        print(user_j.gender == point.get("GenderPreference") and user_p.gender == journey.get("GenderPreference"),flush=True)
         if (point.get("GenderPreference") == 'Everyone' or (user_j.gender == point.get("GenderPreference") and user_p.gender == journey.get("GenderPreference"))):
             if (point.get("RequiredRating") == None or (float(user_j.current_rating) >= float(point.get("RequiredRating")) and (float(user_p.current_rating) >= float(journey.get("RequiredRating")) ))):
                 return False
