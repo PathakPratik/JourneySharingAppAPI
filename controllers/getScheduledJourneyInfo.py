@@ -13,22 +13,16 @@ def join_journey():
 
     response = {}
 
-    try:
-        user_id = session.get('id')
+    user_id = session.get('id')
        
-        message, owned_journey = find_user_owned_journey(user_id)
+    message, owned_journey = find_user_owned_journey(user_id)
                 
-        if owned_journey == None:
-            response['message'] = 'message'
-            response['status'] = 200
-            return jsonify(response)
+    if owned_journey == None:
+        response['message'] = message
+        response['status'] = 400
+        return jsonify(response)
         
-        response['journeys'] = make_json_object(owned_journey)
-        response['status'] = 200
-        return jsonify(response)
+    response['journeys'] = make_json_object(owned_journey)
+    response['status'] = 200
+    return jsonify(response)
 
-
-    except AttributeError:
-        response["message"] = 'Bad request - Provide the journey information in a correct format'
-        response["status"] = 400
-        return jsonify(response)
