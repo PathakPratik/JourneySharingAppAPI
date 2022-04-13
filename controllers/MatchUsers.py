@@ -72,13 +72,6 @@ def DeleteJourneys():
 
     return ("Success", 200)
 
-# Payload Schema for Match Users API
-
-
-
-# Match Users API
-
-
 @app_match_users.route("/match-users", methods=['POST'])
 @login_required
 def MatchUsers():
@@ -189,7 +182,7 @@ class GroupUsersSchema(Schema):
 
 # Group Users API
 @app_match_users.route("/group-users", methods=['POST'])
-@login_required
+# @login_required
 def GroupUsers():
     
     # Unmarshal Payload
@@ -267,3 +260,34 @@ def GroupUsers():
             return jsonify({ "GroupId": abs(Group['GroupId']) }), 200
         except:
             return jsonify("Something went wrong!!"), 500
+
+# Payload Schema for Group Subcription API
+class GroupSubscriptionSchema(Schema):
+    GroupId = fields.Integer(required=True)
+
+# Group Subscription API
+@app_match_users.route("/group-subscription", methods=['POST'])
+# @login_required
+def GroupSubscription():
+    # Unmarshal Payload
+    request_data = request.json
+    schema = GroupSubscriptionSchema()
+
+    if type(request_data) == str:
+        request_data = json.loads(request_data)
+
+    try:
+        result = schema.load(request_data)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    from app import redisClient
+
+    Group = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, -result['GroupId'], -result['GroupId'])
+
+    if not Group:
+        return jsonify("Group does not exist!"), 400
+    else:
+        Group = json.loads(Group[0])
+        Group['GroupId'] = abs(Group['GroupId'])
+        return jsonify(Group), 200
