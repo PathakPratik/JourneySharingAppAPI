@@ -3,7 +3,7 @@ from marshmallow import Schema, fields, ValidationError, validate
 from constants import REDIS_JOURNEY_LIST
 from Models.ExtendedSchemas import MatchUsersSchema
 from services.MatchingAlgorithm import createJourney, matchingAlgorithm, parseUser, parseGroup
-from services.Decorator import test_mode_login_required
+from services.Decorator import login_required
 from services.ScheduledJourneyModule import add_journey_to_db
 from Models.ScheduledJourney import ScheduledJourney
 from setup import db
@@ -26,7 +26,7 @@ class ScheduleJourneySchema(Schema):
 
 
 @app_match_users.route("/schedule-journey", methods=['POST'])
-@test_mode_login_required
+@login_required
 def ScheduleJourney():
 
     # Unmarshal Payload
@@ -69,7 +69,7 @@ def DeleteJourneys():
     return ("Success", 200)
 
 @app_match_users.route("/match-users", methods=['POST'])
-@test_mode_login_required
+@login_required
 def MatchUsers():
 
     # Unmarshal Payload
@@ -178,7 +178,7 @@ class GroupUsersSchema(Schema):
 
 # Group Users API
 @app_match_users.route("/group-users", methods=['POST'])
-@test_mode_login_required
+@login_required
 def GroupUsers():
     
     # Unmarshal Payload

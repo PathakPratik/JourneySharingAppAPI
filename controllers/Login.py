@@ -19,14 +19,14 @@ def login():
             response['message'] = message
             response['status'] = 400
             return jsonify(response)
-        
+        '''
         if not test_mode:
             message, email_confirmed = check_email_confirmation(email=email_)
             if not email_confirmed:
                 response["message"] = message
                 response["status"] = 400
                 return jsonify(response)
-        
+        '''
         message, user = find_user_by_email(email_)
         if(user == None):
             response["message"] = message

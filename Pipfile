@@ -43,7 +43,7 @@ pymysql = "*"
 flask-mail = "*"
 python-dotenv = "*"
 python-dateutil = "*"
-
+Flask-Limiter = "*"
 
 [dev-packages]
 pytest = "*"
