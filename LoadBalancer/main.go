@@ -19,7 +19,7 @@ func main() {
 	// fmt.Println(lb)
 	// fmt.Println(sv1)
 	lb.AddServer(server.CreateNewServer("server-1","http://api:5000"))
-	for 2:=1; i<5; i++ {
+	for i:=2; i<5; i++ {
 		lb.AddServer(server.CreateNewServer("server-"+strconv.Itoa(i), "http://api"+strconv.Itoa(i)+":5000"))
 	}
 	// lb.AddServer(server.CreateNewServer("server-2", "http://api:5000"))
