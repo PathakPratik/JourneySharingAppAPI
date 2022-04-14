@@ -70,11 +70,11 @@ def matchingAlgorithm(curr_list, point):
     for i in neighbors:
         each = json.loads(curr_list[i])
 
-        if filterJourney(each, point):
-            continue
+        # if filterJourney(each, point):
+        #     continue
 
-        if filterFutureJourney(journey):
-            continue
+        # if filterFutureJourney(journey):
+        #     continue
 
         if 'GroupId' in each:
             each['GroupId'] = abs(each['GroupId'])
@@ -159,6 +159,7 @@ def parseGroup(resultList, instance_of_Group):
         currId = currUser["UserId"]
         currRes = UserSchema().dump(Users.query.filter_by(id=currId).first())
         currRes["TripStartLocation"] = currUser["TripStartLocation"]
+        currRes["UserId"] = currUser["UserId"]
         currRes["TripStopLocation"] = currUser["TripStopLocation"]
         parsedUsers.append(currRes)
     currGroup["Users"] = parsedUsers

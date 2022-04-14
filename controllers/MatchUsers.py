@@ -12,8 +12,6 @@ import json
 app_match_users = Blueprint('app_match_users', __name__)
 
 # Payload Schema for Schedule Journey API
-
-
 class ScheduleJourneySchema(Schema):
     TripStartLocation = fields.List(fields.String(), required=True)
     TripStopLocation = fields.List(fields.String(), required=True)
@@ -23,8 +21,6 @@ class ScheduleJourneySchema(Schema):
     ModeOfTransport = fields.String(required=False)
 
 # Schedule Journey API
-
-
 @app_match_users.route("/schedule-journey", methods=['POST'])
 @login_required
 def ScheduleJourney():
@@ -55,8 +51,6 @@ def ScheduleJourney():
     return "Success", 200
 
 # Empty current Journey List
-
-
 @app_match_users.route("/delete-journeys", methods=['DELETE'])
 def DeleteJourneys():
 
@@ -288,7 +282,9 @@ def GroupSubscription():
         else:
             Group = json.loads(Group[0])
             Group['GroupId'] = abs(Group['GroupId'])
-            return jsonify(Group), 200
+            TrueGroup = []
+            parseGroup(TrueGroup, Group)
+            return jsonify(TrueGroup[0]), 200
     except:
             return jsonify("Something went wrong!!"), 500
 
