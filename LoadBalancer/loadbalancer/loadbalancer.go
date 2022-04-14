@@ -4,6 +4,9 @@ import(
 	"github.com/sheilkumar/LoadBalancerGo/server"
 	"net/http"
 	"log"
+	"github.com/go-co-op/gocron"
+	"time"
+	"fmt"
 )
 
 type LoadBalancer struct {
@@ -30,9 +33,40 @@ func (lb *LoadBalancer) ServeQueueAndRotate() *server.Server {
 	return currServer
 }
 
+func (lb *LoadBalancer) ServeHealthyServer() (*server.Server, error) {
+	for i:=0; i<len(lb.ServerList); i++ {
+		currServer := lb.ServeQueueAndRotate()
+		if currServer.Health {
+			return currServer, nil
+		}
+	}
+	return nil, fmt.Errorf("No servers available.")
+}
+
 func (lb *LoadBalancer) ServeRequest(response http.ResponseWriter, request *http.Request) {
-	currServer := lb.ServeQueueAndRotate()
+	currServer, err := lb.ServeHealthyServer()
+	if err!=nil {
+		http.Error(response, err.Error(), http.StatusServiceUnavailable)
+	}
 	currServer.ReverseProxy.ServeHTTP(response, request)
 	log.Printf("Redirected to %s", currServer.URL)
 }
 
+
+func (lb *LoadBalancer) CheckHealth() {
+	s := gocron.NewScheduler(time.Local)
+	for _, host := range lb.ServerList {
+		_, err := s.Every(5).Seconds().Do(func(s *server.Server) {
+			healthy := s.CheckHealth()
+			if healthy {
+				log.Printf("'%s' is Healthy", s.URL)
+			} else {
+				log.Printf("'%s' is Down", s.URL)
+			}
+		}, host)
+		if err!= nil {
+			log.Fatalln(err)
+		}
+	}
+	s.StartAsync()
+}

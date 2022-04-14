@@ -1,6 +1,7 @@
 package server
 
 import(
+	"net/http"
 	"net/http/httputil"
 	"net/url"
 )
@@ -22,3 +23,18 @@ func CreateNewServer(name string, urlString string) *Server {
 		Health:       true}
 	return &server
 } 
+
+func (s *Server) CheckHealth() bool{
+	getString := s.URL + "/show-all"
+	resp, err := http.Get(getString)
+	if err != nil {
+		s.Health = false
+		return s.Health
+	}
+	if resp.StatusCode != http.StatusOK {
+		s.Health = false
+		return s.Health
+	}
+	s.Health = true
+	return s.Health
+}
