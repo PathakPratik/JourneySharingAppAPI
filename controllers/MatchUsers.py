@@ -69,7 +69,7 @@ def DeleteJourneys():
     return ("Success", 200)
 
 @app_match_users.route("/match-users", methods=['POST'])
-# @login_required
+@login_required
 def MatchUsers():
 
     # Unmarshal Payload
@@ -90,10 +90,9 @@ def MatchUsers():
 
     # Add new journey to the list
     try:
-        # userId = session.get('id')
-        # result["UserId"] = userId
-        # createJourney(result, redisClient, userId)
-        createJourney(result, redisClient, result["UserId"])
+        userId = session.get('id')
+        result["UserId"] = userId
+        createJourney(result, redisClient, userId)
     except redisClient.RedisError as err:
         return jsonify(err), 500
 
@@ -179,7 +178,7 @@ class GroupUsersSchema(Schema):
 
 # Group Users API
 @app_match_users.route("/group-users", methods=['POST'])
-# @login_required
+@login_required
 def GroupUsers():
     
     # Unmarshal Payload

@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN pip install pipenv
 
-COPY Pipfile* /app/
+COPY Pipfile* /app
 
 RUN cd /app && pipenv lock --keep-outdated --requirements > requirements.txt
 

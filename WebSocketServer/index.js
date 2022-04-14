@@ -5,7 +5,7 @@ const path = require("path");
 const HelloWorld = require("./helloWorld");
 const MatchUsers = require("./matchUsers");
 const GroupUsers = require("./groupUsers");
-const GroupSubscription = require("./groupSubscription");
+const GroupSubscription = require("./GroupSubscription");
 const Journey = require("./journey");
 const Redis = require("ioredis");
 

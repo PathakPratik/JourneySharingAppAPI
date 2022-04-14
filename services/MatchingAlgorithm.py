@@ -43,11 +43,8 @@ def filterJourney(journey, point):
     message, user_j = find_user_by_id(journey.get("UserId"))
     message, user_p = find_user_by_id(point.get("UserId"))
     if(point.get("ModeOfTransport") == None or journey.get("ModeOfTransport") == point.get("ModeOfTransport")):
-        print("first if", flush=True)
-        if (point.get("GenderPreference") == None or point.get("GenderPreference") == 'Everyone' or (user_j.gender == point.get("GenderPreference") and user_p.gender == journey.get("GenderPreference"))):
-            print("second if", flush=True)
+        if (point.get("GenderPreference") == 'Everyone' or (user_j.gender == point.get("GenderPreference") and user_p.gender == journey.get("GenderPreference"))):
             if (point.get("RequiredRating") == None or (float(user_j.current_rating) >= float(point.get("RequiredRating")) and (float(user_p.current_rating) >= float(journey.get("RequiredRating")) ))):
-                print("third if", flush=True)
                 return False
     return True
 
@@ -91,14 +88,14 @@ def matchingAlgorithm(curr_list, point):
 def filterFutureJourney(journey):
     if type(journey['time']) == str:
         diff = parser.parse(journey['time']) - datetime.today()
-        if diff > timedelta(minutes=60):
+        if diff > timedelta(minutes=3):
             return True
         if diff < timedelta(0):
             return True
     else:
         diff = journey['time'] - time.time()
 
-        if diff < -3600:
+        if diff < -180:
             return True
 
 # Compare if request is same
