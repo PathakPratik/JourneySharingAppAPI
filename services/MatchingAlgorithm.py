@@ -159,6 +159,7 @@ def parseGroup(resultList, instance_of_Group):
         currId = currUser["UserId"]
         currRes = UserSchema().dump(Users.query.filter_by(id=currId).first())
         currRes["TripStartLocation"] = currUser["TripStartLocation"]
+        currRes["UserId"] = currUser["UserId"]
         currRes["TripStopLocation"] = currUser["TripStopLocation"]
         parsedUsers.append(currRes)
     currGroup["Users"] = parsedUsers
