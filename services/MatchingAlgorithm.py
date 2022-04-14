@@ -8,6 +8,7 @@ from dateutil import parser
 from controllers.Register import UserSchema
 from Models.ExtendedSchemas import MatchUsersSchema
 from Models.Users import Users
+from services.UserModule import find_user_by_id
 import numpy as np
 from scipy.spatial import cKDTree
 from scipy import inf
@@ -31,6 +32,22 @@ def createJourney(result, redisClient, score):
     result["time"] = result['ScheduleTime'] if 'ScheduleTime' in result else time.time()
     redisClient.zadd(REDIS_JOURNEY_LIST,{ json.dumps(result): score })
 
+# Remove journeys which do not meet matching criteria
+def filterJourney(journey, point):
+
+    # Filter journeys which have already started
+    if 'GroupId' in journey and journey.get("JourneyStatus") != 'Waiting':
+        return True
+
+    # Filter users based on preferences
+    message, user_j = find_user_by_id(journey.get("UserId"))
+    message, user_p = find_user_by_id(point.get("UserId"))
+    if(point.get("ModeOfTransport") == None or journey.get("ModeOfTransport") == point.get("ModeOfTransport")):
+        if (point.get("GenderPreference") == 'Everyone' or (user_j.gender == point.get("GenderPreference") and user_p.gender == journey.get("GenderPreference"))):
+            if (point.get("RequiredRating") == None or (float(user_j.current_rating) >= float(point.get("RequiredRating")) and (float(user_p.current_rating) >= float(journey.get("RequiredRating")) ))):
+                return False
+    return True
+
 # Matching Algorithm
 def matchingAlgorithm(curr_list, point):
     start_arr, dest_arr = [], []
@@ -38,9 +55,6 @@ def matchingAlgorithm(curr_list, point):
     for each in curr_list:
         journey = json.loads(each)
         
-        if filterFutureJourney(journey):
-            continue
-
         start_arr.append(journey.get("TripStartLocation"))
         dest_arr.append(journey.get("TripStopLocation"))
     
@@ -55,12 +69,19 @@ def matchingAlgorithm(curr_list, point):
     res = []
     for i in neighbors:
         each = json.loads(curr_list[i])
+
+        if filterJourney(each, point):
+            continue
+
+        if filterFutureJourney(journey):
+            continue
+
         if 'GroupId' in each:
             each['GroupId'] = abs(each['GroupId'])
             res.append(each)
         elif 'UserId' in each and each['UserId'] != point['UserId']:
             res.append(each)
-    
+
     return res
 
 # Remove journeys scheduled for future

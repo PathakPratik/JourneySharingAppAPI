@@ -4,7 +4,6 @@ from services.UserModule import validate_rating_form, update_user_in_db, find_us
 from services.Decorator import login_required
 
 app_ratings = Blueprint('app_ratings',__name__)
-ratings_Currently=0
 
 @app_ratings.route("/update_rating",methods=["POST"])
 @login_required

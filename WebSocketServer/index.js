@@ -5,6 +5,8 @@ const path = require("path");
 const HelloWorld = require("./helloWorld");
 const MatchUsers = require("./matchUsers");
 const GroupUsers = require("./groupUsers");
+const GroupSubscription = require("./GroupSubscription");
+const Journey = require("./journey");
 const Redis = require("ioredis");
 
 const redis = new Redis(6379, "redis");
@@ -25,6 +27,20 @@ redis
 
     redis
       .del("clients")
+      .then((res) => console.log("Restarted Socket Server:", res))
+      .catch((err) => console.log(err));
+  })
+  .catch((err) => console.log(err));
+
+redis
+  .smembers("sub-clients")
+  .then((clients) => {
+    for (const each of clients) {
+      redis.del("sub-" + each).catch((err) => console.log(err));
+    }
+
+    redis
+      .del("sub-clients")
       .then((res) => console.log("Restarted Socket Server:", res))
       .catch((err) => console.log(err));
   })
@@ -53,15 +69,57 @@ const broadcastChanges = async (socket) => {
     results.forEach((result, i) => {
       if (result.status == "fulfilled") {
         const { status, data } = result.value;
-        io.to(clients[i]).emit({
+        io.to(clients[i]).emit("routeMatches", {
           action: "routeMatches",
           status,
           data,
         });
       } else {
         const { status, data } = result.reason.response;
-        io.to(clients[i]).emit({
+        io.to(clients[i]).emit("routeMatches", {
           action: "routeMatches",
+          status,
+          data,
+        });
+      }
+    });
+  } catch (err) {
+    console.log(err);
+    io.to(socket.id).emit({ status: "500", data: err });
+  }
+};
+
+// Get list of promises for all active subscription clients
+const getActiveSubClientAPIs = (clients) =>
+  new Promise(async (resolve) => {
+    const promises = [];
+
+    for (const each of clients) {
+      const eachPayload = await redis.get("sub-" + each);
+      const p = GroupSubscription(JSON.parse(eachPayload));
+      promises.push(p);
+    }
+
+    resolve(promises);
+  });
+
+const broadcastSubscriptions = async (socket) => {
+  try {
+    const clients = await redis.smembers("sub-clients");
+    const promises = await getActiveSubClientAPIs(clients);
+    const results = await Promise.allSettled(promises);
+    results.forEach((result, i) => {
+      if (result.status == "fulfilled") {
+        const { status, data } = result.value;
+        io.to(clients[i]).emit("groupSubscription", {
+          action: "groupSubscription",
+          status,
+          data,
+        });
+      } else {
+        const { status, data } = result.reason.response;
+        io.to(clients[i]).emit("groupSubscription", {
+          action: "groupSubscription",
           status,
           data,
         });
@@ -76,7 +134,7 @@ const broadcastChanges = async (socket) => {
 // Handle Clients
 io.on("connection", async (socket) => {
   // Connection message
-  io.to(socket.id).emit({ action: "connected" });
+  io.to(socket.id).emit("connected", { action: "connected" });
 
   // routeMatches
   socket.on("routeMatches", async (payload) => {
@@ -91,18 +149,73 @@ io.on("connection", async (socket) => {
     GroupUsers(payload)
       .then(async (result) => {
         const { status, data } = result;
-        io.to(socket.id).emit({
+        io.to(socket.id).emit("groupUsers", {
           action: "groupUsers",
           status,
           data,
         });
         await broadcastChanges(socket);
+        await broadcastSubscriptions(socket);
       })
       .catch((err) => {
         if (err.hasOwnProperty("response")) {
           const { status, data } = err.response;
-          io.to(socket.id).emit({
+          io.to(socket.id).emit("groupUsers", {
             action: "groupUsers",
+            status,
+            data,
+          });
+        }
+      });
+  });
+
+  // Group Subscription
+  socket.on("groupSubscription", (payload) => {
+    GroupSubscription(payload)
+      .then(async (result) => {
+        const { status, data } = result;
+
+        // Save every client request
+        await redis.sadd("sub-clients", socket.id);
+        await redis.set("sub-" + socket.id, JSON.stringify(payload));
+
+        io.to(socket.id).emit("groupSubscription", {
+          action: "groupSubscription",
+          status,
+          data,
+        });
+      })
+      .catch((err) => {
+        if (err.hasOwnProperty("response")) {
+          const { status, data } = err.response;
+          io.to(socket.id).emit("groupSubscription", {
+            action: "groupSubscription",
+            status,
+            data,
+          });
+        }
+      });
+  });
+
+  // Start Journey
+  socket.on("journeyAction", (payload) => {
+    Journey(payload)
+      .then(async (result) => {
+        const { status, data } = result;
+
+        io.to(socket.id).emit("journeyAction", {
+          action: "journeyAction",
+          status,
+          data,
+        });
+        if (payload.action == "Start") await broadcastChanges(socket);
+        await broadcastSubscriptions(socket);
+      })
+      .catch((err) => {
+        if (err.hasOwnProperty("response")) {
+          const { status, data } = err.response;
+          io.to(socket.id).emit("journeyAction", {
+            action: "journeyAction",
             status,
             data,
           });

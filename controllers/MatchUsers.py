@@ -1,8 +1,12 @@
-from flask import Blueprint, request, jsonify
-from marshmallow import Schema, fields, ValidationError
+from flask import Blueprint, request, jsonify, session
+from marshmallow import Schema, fields, ValidationError, validate
 from constants import REDIS_JOURNEY_LIST
 from Models.ExtendedSchemas import MatchUsersSchema
 from services.MatchingAlgorithm import createJourney, matchingAlgorithm, parseUser, parseGroup
+from services.Decorator import login_required
+from services.ScheduledJourneyModule import add_journey_to_db
+from Models.ScheduledJourney import ScheduledJourney
+from setup import db
 import json
 
 app_match_users = Blueprint('app_match_users', __name__)
@@ -11,15 +15,18 @@ app_match_users = Blueprint('app_match_users', __name__)
 
 
 class ScheduleJourneySchema(Schema):
-    UserId = fields.Integer(required=True)
     TripStartLocation = fields.List(fields.String(), required=True)
     TripStopLocation = fields.List(fields.String(), required=True)
     ScheduleTime = fields.String(required=True)
+    GenderPreference = fields.String(required=False)
+    RequiredRating = fields.String(required=False)
+    ModeOfTransport = fields.String(required=False)
 
 # Schedule Journey API
 
 
 @app_match_users.route("/schedule-journey", methods=['POST'])
+@login_required
 def ScheduleJourney():
 
     # Unmarshal Payload
@@ -33,13 +40,16 @@ def ScheduleJourney():
     # Add new journey to the list with schedule timestamp
     from app import redisClient
     try:
-        createJourney(result, redisClient, result['UserId'])
+        userId = session.get('id')
+        result["UserId"] = userId
+        createJourney(result, redisClient, userId)
+        scheduledJourney = ScheduledJourney(creatorId=str(userId), TripStartLocation=str(result['TripStartLocation']), TripStopLocation=str(result['TripStopLocation']),
+                         ScheduleTime=str(result['ScheduleTime']), GenderPreference=str(result['GenderPreference']), RequiredRating=str(result['RequiredRating']),
+                         ModeOfTransport=str(result['ModeOfTransport']))
+        message, status = add_journey_to_db(scheduledJourney, db)
+
     except redisClient.RedisError as err:
         return jsonify(err), 500
-
-    # Return current journey list
-    # curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
-    # return ''.join(str(e) for e in curr_list), 200
 
     # Return Success
     return "Success", 200
@@ -58,14 +68,8 @@ def DeleteJourneys():
 
     return ("Success", 200)
 
-# Payload Schema for Match Users API
-
-
-
-# Match Users API
-
-
 @app_match_users.route("/match-users", methods=['POST'])
+@login_required
 def MatchUsers():
 
     # Unmarshal Payload
@@ -86,7 +90,9 @@ def MatchUsers():
 
     # Add new journey to the list
     try:
-        createJourney(result, redisClient, result['UserId'])
+        userId = session.get('id')
+        result["UserId"] = userId
+        createJourney(result, redisClient, userId)
     except redisClient.RedisError as err:
         return jsonify(err), 500
 
@@ -172,6 +178,7 @@ class GroupUsersSchema(Schema):
 
 # Group Users API
 @app_match_users.route("/group-users", methods=['POST'])
+@login_required
 def GroupUsers():
     
     # Unmarshal Payload
@@ -238,7 +245,8 @@ def GroupUsers():
                 'GroupId': -User1['UserId'],
                 'TripStartLocation': User1['TripStartLocation'],
                 'TripStopLocation': User1['TripStopLocation'],
-                'Users': [User1, User2]
+                'Users': [User1, User2],
+                'JourneyStatus': 'Waiting'
             }
             createJourney(Group, redisClient, Group['GroupId'])
 
@@ -249,3 +257,77 @@ def GroupUsers():
             return jsonify({ "GroupId": abs(Group['GroupId']) }), 200
         except:
             return jsonify("Something went wrong!!"), 500
+
+# Payload Schema for Group Subcription API
+class GroupSubscriptionSchema(Schema):
+    GroupId = fields.Integer(required=True)
+
+# Group Subscription API
+@app_match_users.route("/group-subscription", methods=['POST'])
+# @login_required
+def GroupSubscription():
+    # Unmarshal Payload
+    request_data = request.json
+    schema = GroupSubscriptionSchema()
+
+    if type(request_data) == str:
+        request_data = json.loads(request_data)
+
+    try:
+        result = schema.load(request_data)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    try:
+        from app import redisClient
+
+        Group = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, -result['GroupId'], -result['GroupId'])
+
+        if not Group:
+            return jsonify("Group does not exist!"), 400
+        else:
+            Group = json.loads(Group[0])
+            Group['GroupId'] = abs(Group['GroupId'])
+            return jsonify(Group), 200
+    except:
+            return jsonify("Something went wrong!!"), 500
+
+# Payload Schema for Group Subcription API
+class StartJourneySchema(Schema):
+    GroupId = fields.Integer(required=True)
+    Action = fields.String(validate=validate.OneOf(['Start', 'End']), required=True)
+
+# Start Journey API
+@app_match_users.route("/journey-action", methods=['POST'])
+# @login_required
+def StartJourney():
+    # Unmarshal Payload
+    request_data = request.json
+    schema = StartJourneySchema()
+
+    if type(request_data) == str:
+        request_data = json.loads(request_data)
+
+    try:
+        result = schema.load(request_data)
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    try:
+        from app import redisClient
+
+        GroupId = -result['GroupId']
+
+        Group = redisClient.zrangebyscore(REDIS_JOURNEY_LIST, GroupId, GroupId)
+
+        if not Group:
+            return jsonify("Group does not exist!"), 400
+        else:
+            # Update Group Journey Status
+            Group = json.loads(Group[0])
+            Group['JourneyStatus'] = result['Action']
+            redisClient.zremrangebyscore(REDIS_JOURNEY_LIST, GroupId, GroupId)
+            createJourney(Group, redisClient, GroupId)
+            return jsonify("Success!"), 200
+    except:
+        return jsonify("Something went wrong!!"), 500

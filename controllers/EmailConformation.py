@@ -27,8 +27,7 @@ def confirm_email(token):
         user.confirmed_on = datetime.datetime.now()
 
         update_user_in_db(user,db)
-
-        session.pop('email', None)
+        
         response['message'] = "User email is confirmed"
         response['status'] = 200
         return jsonify(response)
@@ -45,7 +44,7 @@ def helloWorld():
     
     # Get current journey list
     from app import redisClient
-    curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1)
+    curr_list = redisClient.zrange(REDIS_JOURNEY_LIST, 0, -1, withscores=True)
 
     try:
         response['message'] = ''.join(str(e) for e in curr_list)
