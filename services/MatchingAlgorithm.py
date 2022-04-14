@@ -70,11 +70,11 @@ def matchingAlgorithm(curr_list, point):
     for i in neighbors:
         each = json.loads(curr_list[i])
 
-        # if filterJourney(each, point):
-        #     continue
+        if filterJourney(each, point):
+            continue
 
-        # if filterFutureJourney(journey):
-        #     continue
+        if filterFutureJourney(journey):
+            continue
 
         if 'GroupId' in each:
             each['GroupId'] = abs(each['GroupId'])
