@@ -31,6 +31,6 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 		ReadTimeout:  15 * time.Second,
 	}
-
+	go lb.CheckHealth()
 	log.Fatal(srv.ListenAndServe())
 }
