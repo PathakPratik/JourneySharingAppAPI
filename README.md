@@ -4,15 +4,30 @@ Make sure that you have no pre existing running mysql or journey_sharing_app con
 
 Change the directory to SQL-Docker, in this folder, you find a Dockerfile used for creating the image and running the mysql container by running this command:
 
-`docker build --tag mysql_container:1.0.0 .`
+```
+cd SQL-Docker
+docker build --tag mysql_container:1.0.0 .
+```
 
 Change the directory to WebSocketServer, in this folder, you find a Dockerfile used for creating the image and running the socket server container by running this command:
 
-`docker build --tag web_socket_server:v1 .`
+```
+cd WebSocketServer
+docker build --tag web_socket_server:v1 .
+```
+
+Build the image for the Load Balancer as well 
+```
+cd LoadBalancer 
+docker build -t loadbalancer:v1 . \\ add --platform=linux/amd64 if on apple silicon Mac 
+```
 
 Then go back to the main Directory and run:
 
-`docker build -t journey_sharing_app:v1 .`
+```
+cd .. \\ go back to root directory if not already there
+docker build -t journey_sharing_app:v1 .
+```
 
 After building, run the app by running:
 
