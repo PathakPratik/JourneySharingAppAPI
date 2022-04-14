@@ -1,6 +1,6 @@
 version: '3'
 services:
-  api:
+  api1:
     image: journey_sharing_app:v1
     entrypoint: python app.py
     ports:
@@ -88,7 +88,7 @@ services:
     #       - ./websocketserver:/app
     depends_on:
       - redis
-      - api
+      - api1
   # reoutehandler:
   #  image: nginix_route_handler:1.0.0
   #  ports:
